@@ -1,3 +1,9 @@
-node_modules/
+# dont need node modules
+/node_modules/
+
+# excluding development related
+.env
+*.log
+
+# keeping Brendan's legacy exclusion
 secret_config.js
-npm-debug.log
