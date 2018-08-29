@@ -4,6 +4,7 @@
 # excluding development related
 .env
 *.log
+/dist/
 
 # keeping Brendan's legacy exclusion
 secret_config.js

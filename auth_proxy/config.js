@@ -5,11 +5,12 @@
 
 require('dotenv').config();
 
-var PORT = 3000;
+const PORT = 3000;
 
-var os = require("os");
-var hostName = os.hostname();
-var redirectUri = "http://" + hostName + ":" + PORT + "/callback";
+const OS = require("os");
+const HOST_NAME = OS.hostname();
+const REDIRECT_URI = "http://" + HOST_NAME + ":" + PORT + "/callback";
+const API_URI = 'https://accounts.spotify.com';
 
 module.exports = {
     'PORT': PORT,
@@ -25,5 +26,10 @@ module.exports = {
         'CLIENT_ID': process.env.ENDURING_CLIENT_ID,
         'CLIENT_SECRET': process.env.ENDURING_CLIENT_SECRET
     },
-    'REDIRECT_URI': redirectUri
+    'REDIRECT_URI': REDIRECT_URI,
+    'API_URI': API_URI,
+    'AUTHORIZE_URI': `${API_URI}/authorize`,
+    'TOKENS_URI': `${API_URI}/api/token`,
+    'APP_SCOPE': 'user-read-private user-read-email user-top-read playlist-read-private user-library-read'
+
 };
