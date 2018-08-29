@@ -9,3 +9,5 @@ tableauwdcInit();
 let connector = new SpotifyConnector();
 
 connector.register();
+
+connector.bootstrap();
