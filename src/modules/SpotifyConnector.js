@@ -60,8 +60,8 @@ class SpotifyConnector extends Connector {
 
         TableauShim.password = JSON.stringify(spotifyAuthentication.getTokens());
 
-        var s = new SpotifyWebApi();
-        s.setAccessToken(spotifyAuthentication.getAccessToken());
+        let spotifyWebApi = new SpotifyWebApi();
+        spotifyWebApi.setAccessToken(spotifyAuthentication.getAccessToken());
 
         // let spotifyRequestor = new SpotifyRequestor(s, TableauShim.connectionData, TableauShim.reportProgress);
 

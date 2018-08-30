@@ -8,9 +8,12 @@
     "q": "~1.5.1"
   },
   "scripts": {
-    "start": "npx ./auth_proxy/app.js",
+    "start": "npx babel-node ./auth_proxy/app.js",
     "build": "webpack",
-    "build-w": "webpack --watch"
+    "build-w": "webpack --watch",
+    "lint": "eslint src/**/*.js auth_proxy/**/*.js",
+    "lint-w": "esw -w --color src/**/*.js auth_proxy/**/*.js",
+    "nibble": "eslint-nibble src/ auth_proxy/"
   },
   "repository": {
     "type": "git",

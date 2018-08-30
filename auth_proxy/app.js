@@ -8,48 +8,50 @@
  */
 
 // this will attempt to load /.env to emulate process.env stored vars and avoid hardcode them
-require('dotenv').config();
+import dotenv from 'dotenv';
 
-let version = require('../package.json').version;
-const CONFIG = require('./config.js'); // Get our config info (app id and app secret)
+import CONFIG from './config';
+import { version } from '../package.json';
+import express from 'express';
+import request from 'request';
+import querystring from 'querystring';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import buffer from 'buffer';
+import { cwd, pid, memoryUsage, uptime } from 'process';
 
-let express = require('express'); // Express web server framework
-let request = require('request'); // "Request" library
-let querystring = require('querystring');
-let cookieParser = require('cookie-parser');
-let path = require('path');
+dotenv.config();
 
 let app = express();
+let { Buffer } = buffer;
 
+const LOG = console.log; // eslint-disable-line no-console
 const SIGNATURE = `${CONFIG.CLIENT_ID}:${CONFIG.CLIENT_SECRET}`;
 const ENCODED_SIGNATURE = Buffer.alloc(SIGNATURE.length, SIGNATURE).toString('base64');
 
 /**
  * Connector's public folder
  */
-app.use(express.static(path.resolve(process.cwd(), 'dist')))
+app.use(express.static(path.resolve(cwd(), 'dist')))
     .use(cookieParser());
 
 /**
  * REQUEST TO GET THE SERVER HEALTH
  */
 app.get('/health', function (req, res) {
-    'use strict';
-
     res.send({
-        pid: process.pid,
-        memory: process.memoryUsage(),
-        uptime: process.uptime(),
+        pid: pid,
+        memory: memoryUsage(),
+        uptime: uptime(),
         version
     });
-
 });
 
 /**
  * Hardcoded schema endpoint
  */
 app.get('/schema', function (req, res) {
-    res.sendFile(path.resolve(process.cwd(), 'public/schema_advanced.json'));
+    res.sendFile(path.resolve(cwd(), 'public/schema_advanced.json'));
 });
 
 /**
@@ -73,7 +75,7 @@ app.get('/login', function (req, res) {
  */
 app.get('/callback', function (req, res) {
     // STEP 3 - CODE SENT TO BACKEND
-    console.log('/callback called. Exchanging code for access token');
+    LOG('/callback called. Exchanging code for access token');
 
     const CODE = req.query.code || null;
 
@@ -91,11 +93,11 @@ app.get('/callback', function (req, res) {
     };
 
     // STEP 4 - CODE EXCHANGED FOR ACCESS TOKEN
-    console.log('Requesting access token');
+    LOG('Requesting access token');
 
     request.post(authOptions, function (error, response, body) {
 
-        console.log('Received access token response');
+        LOG('Received access token response');
 
         if (!error && response.statusCode === 200) {
 
@@ -109,7 +111,7 @@ app.get('/callback', function (req, res) {
 
             // STEP 5 - TOKEN PASSED BACK TO THE CONNECTOR
             // Pass the token to the browser to make requests from there
-            console.log('Redirecting back to start page');
+            LOG('Redirecting back to start page');
 
             res.redirect(`/#${PARAMS}`);
 
@@ -156,6 +158,6 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-console.log('Listening on ' + CONFIG.PORT);
+LOG('Listening on ' + CONFIG.PORT);
 
 app.listen(CONFIG.PORT);

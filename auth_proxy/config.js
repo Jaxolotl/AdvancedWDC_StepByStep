@@ -1,30 +1,35 @@
-// The necessary configuration for your server
-// Contains credentials for your Spotify application
-// And the new redirect path for the OAuth flow
-// Should be kept secret
+/**
+ *
+ * The necessary configuration for your server
+ * Contains credentials ref from env variables for your Spotify application
+ *
+ */
+// this will attempt to load /.env to emulate process.env stored vars and avoid hardcode them
+import dotenv from 'dotenv';
 
-require('dotenv').config();
+import { hostname } from 'os';
+import { env } from 'process';
 
 const PORT = 3000;
-
-const OS = require("os");
-const HOST_NAME = OS.hostname();
-const REDIRECT_URI = "http://" + HOST_NAME + ":" + PORT + "/callback";
+const HOST_NAME = hostname();
+const REDIRECT_URI = 'http://' + HOST_NAME + ':' + PORT + '/callback';
 const API_URI = 'https://accounts.spotify.com';
 
-module.exports = {
+dotenv.config();
+
+export default {
     'PORT': PORT,
-    'CLIENT_ID': process.env.EPHEMERAL_CLIENT_ID,
-    'CLIENT_SECRET': process.env.EPHEMERAL_CLIENT_SECRET,
+    'CLIENT_ID': env.EPHEMERAL_CLIENT_ID,
+    'CLIENT_SECRET': env.EPHEMERAL_CLIENT_SECRET,
     // DESKTOP SECRETS
     'EPHEMERAL': {
-        'CLIENT_ID': process.env.EPHEMERAL_CLIENT_ID,
-        'CLIENT_SECRET': process.env.EPHEMERAL_CLIENT_SECRET
+        'CLIENT_ID': env.EPHEMERAL_CLIENT_ID,
+        'CLIENT_SECRET': env.EPHEMERAL_CLIENT_SECRET
     },
     // SERVER SECRETS
     'ENDURING': {
-        'CLIENT_ID': process.env.ENDURING_CLIENT_ID,
-        'CLIENT_SECRET': process.env.ENDURING_CLIENT_SECRET
+        'CLIENT_ID': env.ENDURING_CLIENT_ID,
+        'CLIENT_SECRET': env.ENDURING_CLIENT_SECRET
     },
     'REDIRECT_URI': REDIRECT_URI,
     'API_URI': API_URI,
