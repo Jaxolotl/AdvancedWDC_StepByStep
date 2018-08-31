@@ -2,6 +2,7 @@ import Connector from './Connector';
 import TableauShim from './TableauShim';
 import SpotifyWebApi from 'spotify-web-api-node';
 import SpotifyAuthentication from './SpotifyAuthentication';
+import SpotifyRequestor from './SpotifyRequestor';
 
 import schema from '../schemas/simple.json';
 
@@ -63,7 +64,7 @@ class SpotifyConnector extends Connector {
         let spotifyWebApi = new SpotifyWebApi();
         spotifyWebApi.setAccessToken(spotifyAuthentication.getAccessToken());
 
-        // let spotifyRequestor = new SpotifyRequestor(s, TableauShim.connectionData, TableauShim.reportProgress);
+        this.spotifyRequestor = new SpotifyRequestor(spotifyWebApi, TableauShim.connectionData.filterBy, TableauShim.reportProgress);
 
         TableauShim.log('Calling initCallback');
         initCallback();
@@ -77,11 +78,10 @@ class SpotifyConnector extends Connector {
 
     /**
      *
-     * @param {object} connectionData
      * @param {function} done
      * @returns {undefined}
      */
-    setHeaders (connectionData, done) { // eslint-disable-line no-unused-vars
+    setSchema (done) { // eslint-disable-line no-unused-vars
         TableauShim.log('Setting headers');
 
         done(schema.tables, schema.standardConnections);
@@ -96,7 +96,30 @@ class SpotifyConnector extends Connector {
      * @returns {undefined}
      */
     setData (tableId, done, dataProgressCallback) { // eslint-disable-line no-unused-vars
-        TableauShim.log('Setting data');
+
+        TableauShim.log('setData called for table ' + tableId);
+
+        var tableFunctions = {
+            'topArtists': this.spotifyRequestor.getMyTopArtists.bind(this.spotifyRequestor),
+            'topTracks': this.spotifyRequestor.getMyTopTracks.bind(this.spotifyRequestor),
+            'artists': this.spotifyRequestor.getMySavedArtists.bind(this.spotifyRequestor),
+            'albums': this.spotifyRequestor.getMySavedAlbums.bind(this.spotifyRequestor),
+            'tracks': this.spotifyRequestor.getMySavedTracks.bind(this.spotifyRequestor)
+        };
+
+        if (!tableId) {
+            TableauShim.abortWithError('Unknown table ID: ' + tableId);
+            return;
+        }
+
+        tableFunctions[tableId]().then(function (rows) {
+            dataProgressCallback(rows);
+            done();
+        }, function (error) {
+            TableauShim.log('Error occured waiting for promises. Aborting');
+            TableauShim.abortWithError(error.toString());
+            done();
+        });
     }
 
     /**

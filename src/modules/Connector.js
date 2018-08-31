@@ -35,9 +35,9 @@ class Connector {
     }
 
     /**
-     * Wrapper for tableau.getColumnHeaders
+     * Wrapper for connector.getSchema
      * This separates the concrete connector implementation from the shim's one
-     * It also passes the tableau.connectionData values to the concrete connector setHeaders()
+     * It also passes the tableau.connectionData values to the concrete connector setSchema()
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.getschema
      *
@@ -64,13 +64,13 @@ class Connector {
             schemaCallback(p.tables, p.standardConnections);
         });
 
-        this.setHeaders(TableauShim.connectionData, done);
+        this.setSchema(done);
 
         return defer.promise;
     }
 
     /**
-     * Wrapper for tableau.getTableData
+     * Wrapper for connector.getData
      * This separates the concrete connector implementation from the shim's one
      * It also passes the lastRecordToken values to the concrete connector setData()
      *
@@ -120,14 +120,6 @@ class Connector {
             dataDoneCallback();
         });
 
-        /**
-         * For backward compatibility sake, we mantain the first parameter as a table id, but we
-         * also provide now the new fourth parameter, the entire Tableau's table object with all
-         * the information that is represented by scalar values (not functions).
-         *
-         * This is useful for "incremental refreshes" and for any logic which includes other
-         * table information but the table Id.
-         */
         this.setData(tableObject.tableInfo.id, done, dataProgressCallback, tableInfoObject);
     }
 

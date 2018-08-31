@@ -29,11 +29,12 @@ const LOG = console.log; // eslint-disable-line no-console
 const SIGNATURE = `${CONFIG.CLIENT_ID}:${CONFIG.CLIENT_SECRET}`;
 const ENCODED_SIGNATURE = Buffer.alloc(SIGNATURE.length, SIGNATURE).toString('base64');
 
-/**
- * Connector's public folder
- */
-app.use(express.static(path.resolve(cwd(), 'dist')))
-    .use(cookieParser());
+// --------------------------------------------------------------------------------
+// Express set-up 
+// --------------------------------------------------------------------------------
+app.set('port', CONFIG.PORT);
+app.use(cookieParser());
+app.use(express.static(path.resolve(cwd(), 'dist')));
 
 /**
  * REQUEST TO GET THE SERVER HEALTH
@@ -158,6 +159,6 @@ app.get('/refresh_token', function (req, res) {
     });
 });
 
-LOG('Listening on ' + CONFIG.PORT);
-
-app.listen(CONFIG.PORT);
+app.listen(app.get('port'), () => {
+    LOG(`Listening on ${app.get('port')}`);
+});
