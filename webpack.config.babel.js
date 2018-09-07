@@ -9,7 +9,6 @@ import { version, name } from './package.json';
 const [MAJOR, MINOR, PATCH] = version.split('.');
 
 export default {
-    mode: 'development',
     context: resolve('src'),
     entry: {
         main: ['babel-polyfill', './app.js']

@@ -9,8 +9,10 @@
   },
   "scripts": {
     "start": "npx babel-node ./auth_proxy/app.js",
-    "build": "webpack",
+    "build": "webpack --mode=production",
     "build-w": "webpack --watch",
+    "build-dev": "webpack --mode=development",
+    "build-dev-w": "webpack --mode=development  --watch",
     "lint": "eslint src/**/*.js auth_proxy/**/*.js",
     "lint-w": "esw -w --color src/**/*.js auth_proxy/**/*.js",
     "nibble": "eslint-nibble src/ auth_proxy/"

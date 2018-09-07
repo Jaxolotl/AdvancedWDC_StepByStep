@@ -1,4 +1,5 @@
 import TableauShim from './TableauShim';
+import Q from 'q';
 
 const DEFAULT_PAGE_SIZE = 50;
 const DEFAULT_MAX_RESULTS = 1000;
@@ -18,40 +19,153 @@ function runWithRetry (fn, actionDescription, retryCount = DEFAULT_RETRY_COUNT) 
 
     TableauShim.log(`Running with retryCount of ${retryCount}`);
 
+    let defer = Q.defer();
+
     /**
      * 
      * @returns {Object} Promise/A+
      */
     function tryRunPromise () {
 
-        return fn().then(function (data) {
+        fn().then((data) => {
 
             TableauShim.log(`Promise ${actionDescription} succeeded execution!`);
 
-            return Promise.resolve(data);
+            defer.resolve(data);
 
-        }, function (err) {
-
+        }, (error) => {
+            let { statusCode } = error;
             TableauShim.log(`Error encountered. Current retryCount is = ${retryCount}`);
+            let nextRetryTime = 500;
 
             if (retryCount > 0) {
+
+                if (statusCode === 429) {
+                    // @see https://developer.spotify.com/documentation/web-api/#rate-limiting
+                    nextRetryTime = 10000;
+
+                    TableauShim.reportProgress(`Waiting for API to enable retry due to rate limit`);
+
+                }
 
                 TableauShim.log(`${actionDescription} failed. Trying again.`);
 
                 retryCount--;
 
-                return tryRunPromise();
+                setTimeout(tryRunPromise, nextRetryTime);
 
             } else {
                 TableauShim.log(`Out of retries, failing the call: ${actionDescription}`);
 
-                return Promise.reject(err);
+                defer.reject(error);
             }
 
         });
     }
 
-    return tryRunPromise();
+    tryRunPromise();
+
+    return defer.promise;
+}
+
+/**
+ * Helper function to make a request which returns a promise 
+ * and process the data which the call returns.
+ * fn must be a function which returns a promise. 
+ * rowProcessor will be called once for every row of data
+ * returned by the resolved fn promise. 
+ * rowsAccessor is an optional parameter to be called when fn resolves
+ * to access the array of objects for rowProcessor to handle
+ * 
+ * @param {String} description 
+ * @param {Function} fn 
+ * @param {Function} rowProcessor 
+ * @param {Function} rowsAccessor 
+ * 
+ * @returns {Object} Promise/A+
+ */
+function makeRequestAndProcessRows (description, fn, rowProcessor, rowsAccessor = (data) => { return data.items; }) {
+    TableauShim.log(`Making request for ${description}`);
+
+    // Run this request using the retry logic we have
+    return runWithRetry(fn, description).then(function ({ body: data } = {}) {
+
+        let unprocessedRows = rowsAccessor(data);
+
+        TableauShim.log(`Received Results for  ${description}. Number of rows: ${unprocessedRows.length}`);
+
+        let rows = unprocessedRows.map(rowProcessor);
+
+        // Send back some paging information to the caller
+        let paging = {
+            offset: data.offset || 0,
+            total: data.total || 0
+        };
+
+        return Promise.resolve({ rows, paging });
+    });
+}
+
+/**
+ * Helper function for paging through multiple requests.
+ * Takes the same parameters as _makeRequestAndProcessRows, but
+ * uses the returned paging information to make another request. 
+ * the paging information will be applied to fn when
+ * it is called for each new page
+ * 
+ * @param {String} description 
+ * @param {Function} fn 
+ * @param {Function} rowProcessor 
+ * @param {Function} rowsAccessor  
+ * @param {Number} defaultPageSize  
+ * @param {Number} maxResults
+ * 
+ * @returns {Object} Promise/A+
+ */
+function makeRequestAndProcessRowsWithPaging (description, fn, rowProcessor, rowsAccessor, defaultPageSize = DEFAULT_PAGE_SIZE, maxResults = DEFAULT_MAX_RESULTS) {
+    TableauShim.log(`Making request with paging for ${description}`);
+
+    let allRows = [];
+
+    // Define a getPage helper function for getting a single page of data
+    let getPage = (limit, offset) => {
+
+        TableauShim.log(`Getting a page of data with limit=${limit} and offset=${offset}`);
+
+        return makeRequestAndProcessRows(
+            description,
+            // bind the limit and offset in here
+            fn.bind(null, { limit: limit, offset: offset }),
+            rowProcessor,
+            rowsAccessor
+        ).then((result) => {
+            let nextOffset = result.paging.offset + defaultPageSize;
+
+            let totalRows = result.paging.total < maxResults ? result.paging.total : maxResults;
+
+            allRows = [...allRows, ...result.rows];
+
+            TableauShim.log(`Received a page of data for ${description}. nextOffset is ${nextOffset}. totalRows is ${result.paging.total}. maxResults is ${maxResults}`);
+
+            // Report our progress to the progress reporting function which was passed in
+            TableauShim.reportProgress(`Received data for ${description}. Retrieved ${result.paging.offset} of ${totalRows}`);
+
+            if (nextOffset < result.paging.total && nextOffset < maxResults) {
+
+                return getPage(defaultPageSize, nextOffset);
+
+            } else {
+
+                TableauShim.log(`Done paging through results. Number of results was ${allRows.length}`);
+
+                return Promise.resolve(allRows);
+            }
+
+        });
+
+    };
+
+    return getPage(defaultPageSize, 0);
 }
 
 /**
@@ -65,113 +179,13 @@ class SpotifyRequestor {
      * 
      * @param {Object} spotifyWebApi instance of SpotifyWebApi
      * @param {String} timeRange [long_term|medium_term|short_term]
-     * @param {Function} reportProgress 
      */
-    constructor (spotifyWebApi, timeRange, reportProgress = function () { }) {
+    constructor (spotifyWebApi, timeRange) {
         this.spotifyWebApi = spotifyWebApi;
         this.timeRange = timeRange;
-        this.reportProgress = reportProgress;
         this.defaultPageSize = DEFAULT_PAGE_SIZE;
         this.maxResults = DEFAULT_MAX_RESULTS;
         this.retryCount = DEFAULT_RETRY_COUNT;
-    }
-
-    /**
-     * Helper function to make a request which returns a promise 
-     * and process the data which the call returns.
-     * fn must be a function which returns a promise. 
-     * rowProcessor will be called once for every row of data
-     * returned by the resolved fn promise. 
-     * rowsAccessor is an optional parameter to be called when fn resolves
-     * to access the array of objects for rowProcessor to handle
-     * 
-     * @param {String} description 
-     * @param {Function} fn 
-     * @param {Function} rowProcessor 
-     * @param {Function} rowsAccessor 
-     * 
-     * @returns {Object} Promise/A+
-     */
-    _makeRequestAndProcessRows (description, fn, rowProcessor, rowsAccessor = (data) => { return data.body.items; }) {
-        TableauShim.log(`Making request for ${description}`);
-
-        // Run this request using the retry logic we have
-        return runWithRetry(fn, description).then(function (data) {
-
-            let unprocessedRows = rowsAccessor(data);
-
-            TableauShim.log(`Received Results for  ${description}. Number of rows: ${unprocessedRows.length}`);
-
-            let rows = unprocessedRows.map(rowProcessor);
-
-            // Send back some paging information to the caller
-            let paging = {
-                offset: data.offset || 0,
-                total: data.total || 0
-            };
-
-            return Promise.resolve({ rows, paging });
-        });
-    }
-
-    /**
-     * Helper function for paging through multiple requests.
-     * Takes the same parameters as _makeRequestAndProcessRows, but
-     * uses the returned paging information to make another request. 
-     * the paging information will be applied to fn when
-     * it is called for each new page
-     * 
-     * @param {String} description 
-     * @param {Function} fn 
-     * @param {Function} rowProcessor 
-     * @param {Function} rowsAccessor  
-     * 
-     * @returns {Object} Promise/A+
-     */
-    _makeRequestAndProcessRowsWithPaging (description, fn, rowProcessor, rowsAccessor) {
-        TableauShim.log(`Making request with paging for ${description}`);
-
-        let allRows = [];
-
-        // Define a getPage helper function for getting a single page of data
-        let getPage = (limit, offset) => {
-
-            TableauShim.log(`Getting a page of data with limit=${limit} and offset=${offset}`);
-
-            return this._makeRequestAndProcessRows(
-                description,
-                // bind the limit and offset in here
-                fn.bind(this, { limit: limit, offset: offset }),
-                rowProcessor,
-                rowsAccessor
-            ).then((result) => {
-                let nextOffset = result.paging.offset + this.defaultPageSize;
-
-                let totalRows = result.paging.total < this.maxResults ? result.paging.total : this.maxResults;
-
-                allRows = [...allRows, ...result.rows];
-
-                TableauShim.log(`Received a page of data for ${description}. nextOffset is ${nextOffset}. totalRows is ${result.paging.total}. maxResults is ${this.maxResults}`);
-
-                // Report our progress to the progress reporting function which was passed in
-                this.reportProgress(`Received data for ${description}. Retrieved ${result.paging.offset} of ${totalRows}`);
-
-                if (nextOffset < result.paging.total && nextOffset < this.maxResults) {
-
-                    return getPage(this.defaultPageSize, nextOffset);
-
-                } else {
-
-                    TableauShim.log(`Done paging through results. Number of results was ${allRows.length}`);
-
-                    return Promise.resolve(allRows);
-                }
-
-            });
-
-        };
-
-        return getPage(this.defaultPageSize, 0);
     }
 
     /**
@@ -224,7 +238,7 @@ class SpotifyRequestor {
 
             // Create a promise for each block
             promises.push(
-                this._makeRequestAndProcessRows(
+                makeRequestAndProcessRows(
                     description,
                     fn.bind(this, idBlocks[i]),
                     rowProcessor,
@@ -257,7 +271,7 @@ class SpotifyRequestor {
             return Promise.resolve(this._myTopArtists);
         }
 
-        return this._makeRequestAndProcessRows(
+        return makeRequestAndProcessRows(
             'getMyTopArtists',
             this.spotifyWebApi.getMyTopArtists.bind(this.spotifyWebApi, { time_range: this.timeRange, limit: 50 }),
             /**
@@ -306,7 +320,7 @@ class SpotifyRequestor {
             return Promise.resolve(this._myTopTracks);
         }
 
-        return this._makeRequestAndProcessRows(
+        return makeRequestAndProcessRows(
             'getMyTopTracks',
             this.spotifyWebApi.getMyTopTracks.bind(this.spotifyWebApi, { time_range: this.timeRange, limit: 50 }),
             /**
@@ -356,7 +370,7 @@ class SpotifyRequestor {
         }
 
         // First request whole albums which are saved to the library
-        return this._makeRequestAndProcessRowsWithPaging(
+        return makeRequestAndProcessRowsWithPaging(
             'getMySavedAlbums',
             this.spotifyWebApi.getMySavedAlbums.bind(this.spotifyWebApi),
             /**
@@ -429,7 +443,7 @@ class SpotifyRequestor {
             return Promise.resolve(this._mySavedTracks);
         }
 
-        return this._makeRequestAndProcessRowsWithPaging(
+        return makeRequestAndProcessRowsWithPaging(
             'getMySavedTracks',
             this.spotifyWebApi.getMySavedTracks.bind(this.spotifyWebApi),
             /**
@@ -567,7 +581,7 @@ class SpotifyRequestor {
              * @returns {Array}
              */
             (response) => {
-                return response.body.artists;
+                return response.artists;
             });
     }
 
@@ -615,7 +629,7 @@ class SpotifyRequestor {
              * @returns {Array}
              */
             (response) => {
-                return response.body.albums;
+                return response.albums;
             });
     }
 
@@ -678,7 +692,7 @@ class SpotifyRequestor {
              * @returns {Array}
              */
             (response) => {
-                return response.body.audio_features;
+                return response.audio_features;
             }
         );
     }
