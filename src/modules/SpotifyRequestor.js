@@ -169,6 +169,76 @@ function makeRequestAndProcessRowsWithPaging (description, fn, rowProcessor, row
 }
 
 /**
+ * 
+ * Helper function for calling a fn which takes in an array of ids. 
+ * If the call has a limited blockSize, the requests will be broken up. 
+ * The results will be recombined and returned in the same order as ids
+ * 
+ * @param {Array} ids 
+ * @param {Number} blockSize 
+ * @param {String} description 
+ * @param {Function} fn 
+ * @param {Function} rowProcessor 
+ * @param {Function} rowsAccessor 
+ * 
+ * @returns {Object} Promise/A+
+ */
+function getCollectionFromIds (ids, blockSize, description, fn, rowProcessor, rowsAccessor) {
+    TableauShim.log(`Retrieving a collection for ${description}. ${ids.length} ids are requested with blockSize ${blockSize}`);
+
+    // Request blockSize ids at a time
+    blockSize = 3;
+    let idBlocks = [];
+    let currBlock;
+
+    for (let i = 0; i < ids.length; i++) {
+        if (!currBlock || currBlock.length === blockSize) {
+            currBlock = [];
+            idBlocks.push(currBlock);
+        }
+
+        currBlock.push(ids[i]);
+    }
+
+    TableauShim.log(`Created ${idBlocks.length} blocks`);
+
+    // Allocate a results array which will insert all of our results into.
+    // This must return the results in the order which ids were passed in
+    let resultBlocks = new Array(idBlocks.length);
+
+    let promises = [];
+
+    for (let i = 0; i < idBlocks.length; i++) {
+
+        // This function will get called when each promise finishes
+        let insertValues = function (index, result) {
+            // Place these values in their appropriate spot
+            resultBlocks[index] = result.rows;
+        }.bind(null, i);
+
+        // Create a promise for each block
+        promises.push(
+            makeRequestAndProcessRows(
+                description,
+                fn.bind(null, idBlocks[i]),
+                rowProcessor,
+                rowsAccessor
+            ).then(insertValues)
+        );
+    }
+
+    // Once all the promises have finished, combine the resultBlocks into a single array
+    return Promise.all(promises).then(function () {
+
+        TableauShim.log(`All requests have finished. Combining arrays together for ${description}`);
+
+        let merged = [].concat(...resultBlocks);
+
+        return merged;
+    });
+}
+
+/**
  * SpotifyRequestor
  * 
  * This class abstracts away most of the interaction with Spotify's API. All methods return promises
@@ -186,76 +256,6 @@ class SpotifyRequestor {
         this.defaultPageSize = DEFAULT_PAGE_SIZE;
         this.maxResults = DEFAULT_MAX_RESULTS;
         this.retryCount = DEFAULT_RETRY_COUNT;
-    }
-
-    /**
-     * 
-     * Helper function for calling a fn which takes in an array of ids. 
-     * If the call has a limited blockSize, the requests will be broken up. 
-     * The results will be recombined and returned in the same order as ids
-     * 
-     * @param {Array} ids 
-     * @param {Number} blockSize 
-     * @param {String} description 
-     * @param {Function} fn 
-     * @param {Function} rowProcessor 
-     * @param {Function} rowsAccessor 
-     * 
-     * @returns {Object} Promise/A+
-     */
-    _getCollectionFromIds (ids, blockSize, description, fn, rowProcessor, rowsAccessor) {
-        TableauShim.log(`Retrieving a collection for ${description}. ${ids.length} ids are requested with blockSize ${blockSize}`);
-
-        // Request blockSize ids at a time
-        blockSize = 3;
-        let idBlocks = [];
-        let currBlock;
-
-        for (let i = 0; i < ids.length; i++) {
-            if (!currBlock || currBlock.length === blockSize) {
-                currBlock = [];
-                idBlocks.push(currBlock);
-            }
-
-            currBlock.push(ids[i]);
-        }
-
-        TableauShim.log(`Created ${idBlocks.length} blocks`);
-
-        // Allocate a results array which will insert all of our results into.
-        // This must return the results in the order which ids were passed in
-        let resultBlocks = new Array(idBlocks.length);
-
-        let promises = [];
-
-        for (let i = 0; i < idBlocks.length; i++) {
-
-            // This function will get called when each promise finishes
-            let insertValues = function (index, result) {
-                // Place these values in their appropriate spot
-                resultBlocks[index] = result.rows;
-            }.bind(this, i);
-
-            // Create a promise for each block
-            promises.push(
-                makeRequestAndProcessRows(
-                    description,
-                    fn.bind(this, idBlocks[i]),
-                    rowProcessor,
-                    rowsAccessor
-                ).then(insertValues)
-            );
-        }
-
-        // Once all the promises have finished, combine the resultBlocks into a single array
-        return Promise.all(promises).then(function () {
-
-            TableauShim.log(`All requests have finished. Combining arrays together for ${description}`);
-
-            let merged = [].concat(...resultBlocks);
-
-            return merged;
-        });
     }
 
     /**
@@ -550,7 +550,7 @@ class SpotifyRequestor {
         // TODO - cache the artists we have already retrieved by their id
 
         // Spotify only lets us request 50 artists at a time
-        return this._getCollectionFromIds(
+        return getCollectionFromIds(
             ids,
             50,
             'getArtists',
@@ -595,7 +595,7 @@ class SpotifyRequestor {
         // TODO - cache the artists we have already retrieved by their id
 
         // Spotify only lets us request 20 albums at a time
-        return this._getCollectionFromIds(
+        return getCollectionFromIds(
             ids,
             20,
             'getAlbums',
@@ -642,7 +642,7 @@ class SpotifyRequestor {
     getTrackFeatures (ids) {
         // TODO - cache the tracks we have already retrieved by their id
 
-        return this._getCollectionFromIds(
+        return getCollectionFromIds(
             ids,
             100,
             'getTrackFeatures',
