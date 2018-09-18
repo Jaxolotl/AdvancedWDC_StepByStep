@@ -2,9 +2,6 @@ import Connector from './Connector';
 import TableauShim from './TableauShim';
 import SpotifyWebApi from 'spotify-web-api-node';
 import SpotifyAuthentication from './SpotifyAuthentication';
-import SpotifyRequestor from './SpotifyRequestor';
-
-import schema from '../schemas/simple.json';
 
 /**
  *
@@ -64,8 +61,6 @@ class SpotifyConnector extends Connector {
         let spotifyWebApi = new SpotifyWebApi();
         spotifyWebApi.setAccessToken(spotifyAuthentication.getAccessToken());
 
-        this.spotifyRequestor = new SpotifyRequestor(spotifyWebApi, TableauShim.connectionData.filterBy, TableauShim.reportProgress);
-
         TableauShim.log('Calling initCallback');
         initCallback();
 
@@ -81,10 +76,10 @@ class SpotifyConnector extends Connector {
      * @param {function} done
      * @returns {undefined}
      */
-    setSchema (done) { // eslint-disable-line no-unused-vars
+    setSchema (done) {
         TableauShim.log('Setting headers');
 
-        done(schema.tables, schema.standardConnections);
+        done([]);
 
     }
 
@@ -99,27 +94,8 @@ class SpotifyConnector extends Connector {
 
         TableauShim.log('setData called for table ' + tableId);
 
-        var tableFunctions = {
-            'topArtists': this.spotifyRequestor.getMyTopArtists.bind(this.spotifyRequestor),
-            'topTracks': this.spotifyRequestor.getMyTopTracks.bind(this.spotifyRequestor),
-            'artists': this.spotifyRequestor.getMySavedArtists.bind(this.spotifyRequestor),
-            'albums': this.spotifyRequestor.getMySavedAlbums.bind(this.spotifyRequestor),
-            'tracks': this.spotifyRequestor.getMySavedTracks.bind(this.spotifyRequestor)
-        };
+        done();
 
-        if (!tableId) {
-            TableauShim.abortWithError('Unknown table ID: ' + tableId);
-            return;
-        }
-
-        tableFunctions[tableId]().then(function (rows) {
-            dataProgressCallback(rows);
-            done();
-        }, function (error) {
-            TableauShim.log('Error occured waiting for promises. Aborting');
-            TableauShim.abortWithError(error.toString());
-            done();
-        });
     }
 
     /**

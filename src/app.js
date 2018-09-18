@@ -1,6 +1,6 @@
 
 import style from './assets/custom.css'; // eslint-disable-line no-unused-vars
-import tableauwdcInit from '@tabloids/wdclib'; // eslint-disable-line no-unused-vars
+import tableauwdcInit from '@jaxolotl/wdclib'; // eslint-disable-line no-unused-vars
 // import Q from 'q';
 import SpotifyConnector from './modules/SpotifyConnector';
 

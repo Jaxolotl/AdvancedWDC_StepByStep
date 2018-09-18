@@ -23,7 +23,7 @@
   },
   "license": "Apache-2.0 https://github.com/lbrendanl/SpotifyWDC/raw/master/LICENSE",
   "devDependencies": {
-    "@tabloids/wdclib": "~2.4.0-beta.1.1",
+    "@jaxolotl/wdclib": "~2.4.0-beta.1.2",
     "babel-cli": "~6.26.0",
     "babel-core": "~6.26.3",
     "babel-eslint": "~9.0.0",
