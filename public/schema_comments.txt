@@ -1,3 +1,0 @@
-"description": "Contains information on every track that you have saved in your Spotify library."
-"alias": "Is Explicit"
-"defaultFormat": { "numberFormat": "percentage"}, "aggType" : "avg"
