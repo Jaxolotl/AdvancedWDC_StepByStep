@@ -1,7 +1,8 @@
+import _ from 'lodash';
 import Connector from './Connector';
 import TableauShim from './TableauShim';
-import SpotifyWebApi from 'spotify-web-api-node';
 import SpotifyAuthentication from './SpotifyAuthentication';
+import schema from '../schemas/simple.json';
 
 /**
  *
@@ -14,59 +15,64 @@ class SpotifyConnector extends Connector {
      * @returns {undefined}
      */
     init (initCallback) {
-        TableauShim.log(`Connector.Init: phase: ${TableauShim.phase}`);
+        TableauShim.log(`Connector.Init -> ${TableauShim.phase}`);
 
         let spotifyAuthentication = new SpotifyAuthentication();
+        let tokens = spotifyAuthentication.getTokens();
 
-        // STEP 1 - WDC IS LOADED
-        if (!spotifyAuthentication.hasTokens()) {
+        if (tokens) {
+            // YAY! we're authenticated
+            spotifyAuthentication.saveTokens(tokens);
 
-            TableauShim.log('We do not have SpotifyAuthentication tokens available');
+            switch (TableauShim.phase) {
+                // ##### INTERACTIVE PHASE
+                case TableauShim.phaseEnum.interactivePhase:
 
-            if (TableauShim.phase !== TableauShim.phaseEnum.gatherDataPhase) {
+                    this.toggleUIState('content');
+                    initCallback();
 
-                this.toggleUIState('signIn');
+                    break;
+                // ##### AUTH PHASE
+                case TableauShim.phaseEnum.authPhase:
 
-                var redirectToSignIn = function () {
+                    initCallback();
+                    this.submit();
 
-                    // STEP 2 - REDIRECT TO LOGIN PAGE
-                    TableauShim.log('Redirecting to login page');
+                    break;
+                // ##### DATA GATHERING
+                case TableauShim.phaseEnum.gatherDataPhase:
 
-                    window.location.href = '/login';
-                };
+                    initCallback();
 
-                window.jQuery('#signIn').click(redirectToSignIn);
-
-                redirectToSignIn();
-
-            } else {
-
-                TableauShim.abortForAuth('Missing SpotifyAuthentication!');
+                    break;
 
             }
 
-            // Early return here to avoid changing any other state
-            return;
-        }
+        } else {
+            // No Tokens :(
+            // authentication is required
 
-        TableauShim.log('Access token found!');
+            switch (TableauShim.phase) {
+                // ##### INTERACTIVE PHASE
+                case TableauShim.phaseEnum.interactivePhase:
 
-        this.toggleUIState('content');
+                    this.toggleUIState('signIn');
 
-        // STEP 6 - TOKEN STORED IN TABLEAU PASSWORD
-        TableauShim.log('Setting tableau.password to access_token and refresh tokens');
+                    break;
+                // ##### AUTH PHASE
+                case TableauShim.phaseEnum.authPhase:
 
-        TableauShim.password = JSON.stringify(spotifyAuthentication.getTokens());
+                    this.toggleUIState('signIn');
 
-        let spotifyWebApi = new SpotifyWebApi();
-        spotifyWebApi.setAccessToken(spotifyAuthentication.getAccessToken());
+                    break;
+                // ##### DATA GATHERING
+                case TableauShim.phaseEnum.gatherDataPhase:
 
-        TableauShim.log('Calling initCallback');
-        initCallback();
+                    // no tokens, this is an error during data gathering phase
+                    TableauShim.abortForAuth('Missing SpotifyAuthentication!');
+                    break;
 
-        if (TableauShim.phase === TableauShim.phaseEnum.authPhase) {
-            // Immediately submit if we are running in the auth phase
-            this.submit();
+            }
         }
 
     }
@@ -77,9 +83,14 @@ class SpotifyConnector extends Connector {
      * @returns {undefined}
      */
     setSchema (done) {
-        TableauShim.log('Setting headers');
 
-        done([]);
+        if (_.isEmpty(TableauShim.connectionData)) {
+            // connectionData is empty
+            done([]);
+            return;
+        }
+
+        done(schema.tables, schema.standardConnections);
 
     }
 
@@ -91,8 +102,6 @@ class SpotifyConnector extends Connector {
      * @returns {undefined}
      */
     setData (tableId, done, dataProgressCallback) { // eslint-disable-line no-unused-vars
-
-        TableauShim.log('setData called for table ' + tableId);
 
         done();
 
@@ -114,6 +123,17 @@ class SpotifyConnector extends Connector {
         }
 
         window.jQuery('#' + contentToShow).css('display', 'inline-block');
+    }
+
+    /**
+     * 
+     * @returns {Undefined}
+     */
+    redirectToSignIn () {
+
+        TableauShim.log('Redirecting to login page');
+
+        window.location.href = '/login';
     }
 
     /**
@@ -140,9 +160,11 @@ class SpotifyConnector extends Connector {
          *
          */
         window.jQuery(document).ready(() => {
-            window.jQuery('#getdata').click(() => { // This event fires when a button is clicked
-                this.saveConfiguration();
-            });
+
+            window.jQuery('#getdata').click(() => this.saveConfiguration());
+
+            window.jQuery('#signIn').click(() => this.redirectToSignIn());
+
         });
 
     }

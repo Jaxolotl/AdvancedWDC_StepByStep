@@ -105,7 +105,7 @@ class Connector {
 
         /**
          * This will contain all the scalar values that
-         * provides information coming from Tableau shim, it will
+         * provide information coming from Tableau shim, it will
          * not include functionality, this will be restricted to
          * the one proposed by WDC Framework
          *

@@ -16,6 +16,7 @@
         "indent": [ "error",  4, { "SwitchCase": 1 } ],
         "semi": [ "error", "always" ],
         "padded-blocks": 0,
+        "camelcase": 0,
         "valid-jsdoc": [
             "error",
             {
