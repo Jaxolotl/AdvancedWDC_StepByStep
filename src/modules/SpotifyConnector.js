@@ -48,8 +48,15 @@ class SpotifyConnector extends Connector {
                  */
                 case TableauShim.phaseEnum.interactivePhase:
 
+                    /**
+                     * User will need to interact with the connector
+                     * In this case we shoul the filters page
+                     */
                     UI.toggleUIState('content');
                     UI.setFilterFromConnectionData();
+                    /**
+                     * Init is completed
+                     */
                     initCallback();
 
                     break;
@@ -60,6 +67,12 @@ class SpotifyConnector extends Connector {
                  */
                 case TableauShim.phaseEnum.gatherDataPhase:
 
+                    /**
+                     * Init is completed
+                     * Tell tableau to continue.
+                     * On Tableau Desktop this phase will occur on an headless browser,
+                     * hence no UI will be displayed
+                     */
                     initCallback();
 
                     break;
@@ -70,7 +83,16 @@ class SpotifyConnector extends Connector {
                  */
                 case TableauShim.phaseEnum.authPhase:
 
+                    /**
+                     * Init is completed
+                     */
                     initCallback();
+                    /**
+                     * Just tell tableau we're done.
+                     * 
+                     * Updates to properties other than tableau.username and tableau.password
+                     * will be ignored during this phase and we already have those defined.
+                     */
                     TableauShim.submit();
 
                     break;
@@ -92,6 +114,9 @@ class SpotifyConnector extends Connector {
                  */
                 case TableauShim.phaseEnum.interactivePhase:
 
+                    /**
+                     * Display the sign in UI
+                     */
                     UI.toggleUIState('signIn');
 
                     break;
@@ -100,14 +125,28 @@ class SpotifyConnector extends Connector {
                  */
                 case TableauShim.phaseEnum.gatherDataPhase:
 
-                    // no tokens, this is an error during data gathering phase
+                    /**
+                     * 
+                     * On Tableau Desktop this phase will occur on an headless browser,
+                     * hence no UI will be displayed,
+                     * 
+                     * but WAIT!!
+                     * 
+                     * no tokens???!
+                     * this is an error!
+                     * You can't get no data if you ain't got no tokens ( Yo Victor! You can't hold no groove if you ain't got no pocket. )
+                     */
                     TableauShim.abortForAuth(TERMS.ERROR.SAVE_TOKENS_TO_PASSWD);
+
                     break;
                 /**
                  * AUTH PHASE
                  */
                 case TableauShim.phaseEnum.authPhase:
 
+                    /**
+                     * Display the sign in UI
+                     */
                     UI.toggleUIState('signIn');
 
                     break;
@@ -119,9 +158,9 @@ class SpotifyConnector extends Connector {
 
     /**
      * 
-     * Done is an async wrapper of to SchemaCallback
+     * 
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
-     * @param {function} done
+     * @param {function} done an async wrapper of SchemaCallback
      * 
      * @returns {undefined}
      */
