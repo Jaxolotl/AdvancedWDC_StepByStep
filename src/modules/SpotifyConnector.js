@@ -2,7 +2,8 @@ import _ from 'lodash';
 import Connector from './Connector';
 import TableauShim from './TableauShim';
 import SpotifyAuthentication from './SpotifyAuthentication';
-import schema from '../schemas/simple.json';
+import UI from './UI';
+import TERMS from './termsDictionary';
 
 /**
  *
@@ -21,55 +22,94 @@ class SpotifyConnector extends Connector {
         let tokens = spotifyAuthentication.getTokens();
 
         if (tokens) {
-            // YAY! we're authenticated
-            spotifyAuthentication.saveTokens(tokens);
+            /**
+             * We have authentication data!
+             * Let store them to the right properties
+             * 
+             * Note:
+             * Username and username alias:
+             *      will be permanently stored as part of the workbook
+             * 
+             * Password:
+             *      will be kept in memory but not persisted on the workbook or the extract.
+             *      Though, they can be persisted on server by using the publishing options
+             *      @see https://onlinehelp.tableau.com/current/online/en-us/to_fresh_data_saved_credentials.htm
+             *      @see https://onlinehelp.tableau.com/current/pro/desktop/en-us/help.html#publishing_sharing_authentication.html
+             */
+            spotifyAuthentication.saveUsername(`${TERMS.CONNECTOR_NAME}: ${(new Date()).toLocaleString()}`);
+            spotifyAuthentication.saveTokensToPassword(tokens);
 
             switch (TableauShim.phase) {
-                // ##### INTERACTIVE PHASE
+
+                /**
+                 * INTERACTIVE PHASE
+                 * 
+                 * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#phase-one
+                 */
                 case TableauShim.phaseEnum.interactivePhase:
 
-                    this.toggleUIState('content');
+                    UI.toggleUIState('content');
+                    UI.setFilterFromConnectionData();
                     initCallback();
 
                     break;
-                // ##### AUTH PHASE
-                case TableauShim.phaseEnum.authPhase:
-
-                    initCallback();
-                    this.submit();
-
-                    break;
-                // ##### DATA GATHERING
+                /**
+                 * DATA GATHERING
+                 * 
+                 * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#phase-two
+                 */
                 case TableauShim.phaseEnum.gatherDataPhase:
 
                     initCallback();
+
+                    break;
+                /**
+                 * AUTH PHASE
+                 * 
+                 * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#phase-three
+                 */
+                case TableauShim.phaseEnum.authPhase:
+
+                    initCallback();
+                    TableauShim.submit();
 
                     break;
 
             }
 
         } else {
-            // No Tokens :(
-            // authentication is required
+
+            /**
+             * No tokens found
+             * It means this is new blind session
+             * or
+             * something went wrong we end up here without the necessary info for data gathering
+             */
 
             switch (TableauShim.phase) {
-                // ##### INTERACTIVE PHASE
+                /**
+                 * INTERACTIVE PHASE
+                 */
                 case TableauShim.phaseEnum.interactivePhase:
 
-                    this.toggleUIState('signIn');
+                    UI.toggleUIState('signIn');
 
                     break;
-                // ##### AUTH PHASE
-                case TableauShim.phaseEnum.authPhase:
-
-                    this.toggleUIState('signIn');
-
-                    break;
-                // ##### DATA GATHERING
+                /**
+                 * DATA GATHERING
+                 */
                 case TableauShim.phaseEnum.gatherDataPhase:
 
                     // no tokens, this is an error during data gathering phase
-                    TableauShim.abortForAuth('Missing SpotifyAuthentication!');
+                    TableauShim.abortForAuth(TERMS.ERROR.SAVE_TOKENS_TO_PASSWD);
+                    break;
+                /**
+                 * AUTH PHASE
+                 */
+                case TableauShim.phaseEnum.authPhase:
+
+                    UI.toggleUIState('signIn');
+
                     break;
 
             }
@@ -78,94 +118,62 @@ class SpotifyConnector extends Connector {
     }
 
     /**
-     *
+     * 
+     * Done is an async wrapper of to SchemaCallback
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
      * @param {function} done
+     * 
      * @returns {undefined}
      */
-    setSchema (done) {
+    schema (done) {
 
         if (_.isEmpty(TableauShim.connectionData)) {
-            // connectionData is empty
+            /**
+             * If no connection data we assume to be here after authPhase ( @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.phaseenum )
+             * In which case the schema, isn't writable
+             */
             done([]);
             return;
         }
 
-        done(schema.tables, schema.standardConnections);
+        /**
+         * Pass along the params required by the SchemaCallback signature
+         * 
+         * @argument {Array} Array<TableInfo> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
+         * @argument {Array} Array<StandardConnection> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+         * 
+         */
+        done([], []);
 
-    }
-
-    /**
-     *
-     * @param {string} tableId
-     * @param {function} done
-     * @param {function} dataProgressCallback
-     * @returns {undefined}
-     */
-    setData (tableId, done, dataProgressCallback) { // eslint-disable-line no-unused-vars
-
-        done();
-
-    }
-
-    /**
-     * @param {String} contentToShow
-     * @returns {Undefined}
-     */
-    toggleUIState (contentToShow) {
-        let allIds = [
-            '#spinner',
-            '#content',
-            '#signIn'
-        ];
-
-        for (let i in allIds) {
-            window.jQuery(allIds[i]).css('display', 'none');
-        }
-
-        window.jQuery('#' + contentToShow).css('display', 'inline-block');
     }
 
     /**
      * 
-     * @returns {Undefined}
+     * The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
+     * @param {string} tableId
+     * 
+     * Accept 1 parameter which will be passed to table.appendRows()
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+     * and finally will call DataDoneCallback
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
+     * @param {function} done
+     * 
+     * Reference to Table:appendRows
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+     * @param {function} dataProgressCallback
+     * 
+     * Reference to Table
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table
+     * @param {function} tableInfoObject
+     * 
+     * @returns {undefined}
      */
-    redirectToSignIn () {
+    data (tableId, done, dataProgressCallback, tableInfoObject) { // eslint-disable-line no-unused-vars
 
-        TableauShim.log('Redirecting to login page');
-
-        window.location.href = '/login';
-    }
-
-    /**
-     * @returns {Undefined}
-     */
-    saveConfiguration () {
-
-        TableauShim.authType = TableauShim.authTypeEnum.custom;
-
-        TableauShim.connectionName = 'Spotify Connector';
-
-        TableauShim.connectionData = {
-            filterBy: document.querySelector('input[name="term"]:checked').value
-        };
-
-        this.submit();
-    }
-
-    /**
-     * @returns {Undefined}
-     */
-    bootstrap () {
-        /**
-         *
-         */
-        window.jQuery(document).ready(() => {
-
-            window.jQuery('#getdata').click(() => this.saveConfiguration());
-
-            window.jQuery('#signIn').click(() => this.redirectToSignIn());
-
-        });
+        // send the rows to Tableau ( Array<Array<any>> )
+        // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+        done([]);
 
     }
 
