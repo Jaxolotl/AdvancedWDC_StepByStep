@@ -17,13 +17,12 @@ tableauwdcInit();
 let connector = new SpotifyConnector();
 
 /**
- * Registers your connector with Tableau.
+ * Register your connector with Tableau.
  * You call this function after you have created the connector instance
  * and attached functions to the instance
  * 
  * REFERENCE to tableau.registerConnector
  * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.registerconnector
-
  */
 connector.register();
 
