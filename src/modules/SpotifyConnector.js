@@ -50,7 +50,7 @@ class SpotifyConnector extends Connector {
 
                     /**
                      * User will need to interact with the connector
-                     * In this case we shoul the filters page
+                     * In this case we show the filters page
                      */
                     UI.toggleUIState('content');
                     UI.setFilterFromConnectionData();
@@ -168,7 +168,8 @@ class SpotifyConnector extends Connector {
 
         if (_.isEmpty(TableauShim.connectionData)) {
             /**
-             * If no connection data we assume to be here after authPhase ( @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.phaseenum )
+             * If no connection data we assume to be here after authPhase
+             * ( @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.phaseenum )
              * In which case the schema, isn't writable
              */
             done([]);

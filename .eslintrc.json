@@ -1,39 +1,7 @@
 {
-    "env": {
-        "browser": true,
-        "node": false,
-        "es6": true
-    },
-    "parser": "babel-eslint",
-    "extends": [
-        "eslint:recommended",
-        "standard"
-    ],
+    "extends": ["@jaxolotl/eslint-config-wdc-es6"],
     "rules": {
-        "no-trailing-spaces": [ "error", { "ignoreComments": true } ],
-        "no-unused-vars": [ "error", { "args": "after-used" } ],
-        "no-useless-call": 0,
-        "indent": [ "error",  4, { "SwitchCase": 1 } ],
-        "semi": [ "error", "always" ],
-        "padded-blocks": 0,
-        "camelcase": 0,
-        "valid-jsdoc": [
-            "error",
-            {
-                "requireParamDescription": false,
-                "requireReturnDescription": false
-            }
-        ],
-        "require-jsdoc": [
-            "error",
-            {
-                "require": {
-                    "FunctionDeclaration": true,
-                    "MethodDefinition": true,
-                    "ClassDeclaration": true,
-                    "ArrowFunctionExpression": false
-                }
-            }
-        ]
+        "camelcase": 1,
+        "no-useless-call": 1
     }
 }
