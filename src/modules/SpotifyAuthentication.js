@@ -1,4 +1,7 @@
 import TableauShim from './TableauShim';
+import _ from 'lodash';
+import TERMS from './termsDictionary';
+import $ from 'jquery';
 
 /**
  * Obtains parameters from the hash of the URL
@@ -23,40 +26,71 @@ function getHashParams () {
 class SpotifyAuthentication {
 
     /**
-     * Checks whether or not we have saved authentication tokens available
-     * @returns {Boolean}
-     */
-    hasTokens () {
-        TableauShim.log('Checking if we have auth tokens');
-
-        let result = this.getTokens();
-
-        return !!result.access_token && !!result.refresh_token;
-    }
-
-    /**
      * Gets the access_token and refresh_token from either tableau.password or query hash
-     * @returns {Object}
+     * Return false if those properties are not found
+     * 
+     * @returns {Object|Boolean}
      */
     getTokens () {
 
+        let tokens = {};
+
         // We've saved off the access & refresh token to tableau.password
         if (TableauShim.password) {
-
-            TableauShim.log('Grabbing authentication from tableau.password');
-
-            return JSON.parse(TableauShim.password);
+            /**
+             * It seems we have password stored
+             */
+            tokens = TableauShim.passwordData;
 
         } else {
+            /**
+             * No password stored, are we coming back from Spotify auth flow?
+             */
+            tokens = getHashParams();
 
-            TableauShim.log('Grabbing authentication from query hash');
-
-            return getHashParams();
         }
+
+        /**
+         * Make sure the required values are there
+         */
+        if (_.get(tokens, 'access_token') && _.get(tokens, 'refresh_token')) {
+            // send a shallow compy of tokens
+            return Object.assign({}, tokens);
+        }
+
+        return false;
+
+    }
+
+    /**
+     * @param {Object} $0
+     * @param {String} $.access_token
+     * @param {String} $.refresh_token
+     * 
+     * @returns {Undefined}
+     */
+    saveTokensToPassword ({ access_token, refresh_token } = {}) {
+
+        if (!access_token || !refresh_token) {
+            throw new Error(TERMS.ERROR.SAVE_TOKENS_TO_PASSWD);
+        }
+
+        TableauShim.passwordData = { access_token, refresh_token };
+    }
+
+    /**
+     * 
+     * @param {String} username 
+     * 
+     * @returns {Undefined}
+     */
+    saveUsername (username = '') {
+        TableauShim.username = username;
     }
 
     /**
      * Gets just the access token needed for making requests
+     * 
      * @returns {String}
      */
     getAccessToken () {
@@ -71,15 +105,20 @@ class SpotifyAuthentication {
      * @returns {Object} Promise
      */
     refreshToken (doneHandler) {
-        TableauShim.log('Requesting refreshToken');
 
-        return window.jQuery.ajax({
-            url: '/refresh_token',
+        return $.ajax({
+            url: `/refresh_token?authPurpose=${TableauShim.authPurpose}`,
             data: {
                 'refresh_token': this.getTokens().refresh_token
             }
-        }).done(function (data) {
+        }).done((data) => {
+
             doneHandler(data.access_token);
+
+        }).fail(() => {
+            // something went wrong, lets communicate that
+            throw new Error(TERMS.ERROR.UNABLE_TO_REFRESH_TOKENS);
+
         });
     }
 }

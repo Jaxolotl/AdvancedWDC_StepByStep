@@ -64,7 +64,7 @@ class Connector {
             schemaCallback(p.tables, p.standardConnections);
         });
 
-        this.setSchema(done);
+        this.schema(done);
 
         return defer.promise;
     }
@@ -104,8 +104,8 @@ class Connector {
         };
 
         /**
-         * This will contain all the scalar values that
-         * provides information coming from Tableau shim, it will
+         * This will contain all the non-function values that
+         * provide information coming from Tableau shim, it will
          * not include functionality, this will be restricted to
          * the one proposed by WDC Framework
          *
@@ -120,7 +120,7 @@ class Connector {
             dataDoneCallback();
         });
 
-        this.setData(tableObject.tableInfo.id, done, dataProgressCallback, tableInfoObject);
+        this.data(tableObject.tableInfo.id, done, dataProgressCallback, tableInfoObject);
     }
 
     /**
@@ -135,16 +135,6 @@ class Connector {
         TableauShim.registerConnector(this);
 
         return this;
-    }
-
-    /**
-     * Wrapper for tableau.submit
-     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.submit
-     *
-     * @returns {undefined}
-     */
-    submit () {
-        TableauShim.submit();
     }
 }
 

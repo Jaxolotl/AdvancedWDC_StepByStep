@@ -47,7 +47,7 @@ export default {
                 },
                 include: [
                     resolve('src'),
-                    resolve('node_modules/@tabloids')
+                    resolve('node_modules/@jaxolotl')
                 ]
             },
             {
