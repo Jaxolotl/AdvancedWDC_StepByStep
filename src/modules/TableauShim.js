@@ -24,12 +24,12 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    abortForAuth: (...args) => globalTableau().abortForAuth.apply(globalTableau(), [...args]),
+    abortForAuth: (...args) => globalTableau().abortForAuth.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * Alias for abortForAuth
      * @returns {undefined}
      */
-    abortForAuthentication: (...args) => globalTableau().abortForAuth.apply(globalTableau(), [...args]),
+    abortForAuthentication: (...args) => globalTableau().abortForAuth.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * REFERENCE to tableau.abortWithError
      *
@@ -37,14 +37,14 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    abortWithError: (...args) => globalTableau().abortWithError.apply(globalTableau(), [...args]),
+    abortWithError: (...args) => globalTableau().abortWithError.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * REFERENCE to addCrossOriginException
      * @todo documentation not available on API documentation
      *
      * @returns {undefined}
      */
-    addCrossOriginException: (...args) => globalTableau().addCrossOriginException.apply(globalTableau(), [...args]),
+    addCrossOriginException: (...args) => globalTableau().addCrossOriginException.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * WRAPPER for tableau.aggTypeEnum to make it read-only
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.aggtypeenum
@@ -254,7 +254,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    dataCallback: (...args) => globalTableau().dataCallback.apply(globalTableau(), [...args]),
+    dataCallback: (...args) => globalTableau().dataCallback.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * READONLY copy of tableau.dataTypeEnum
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datatypeenum
@@ -312,7 +312,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    headersCallback: (...args) => globalTableau().headersCallback.apply(globalTableau(), [...args]),
+    headersCallback: (...args) => globalTableau().headersCallback.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * REFERENCE to tableau.incrementalExtractColumn
      * @see http://onlinehelp.tableau.com/v9.3/api/wdc/en-us/WDC/wdc_ref.htm#tableau_properties_incrementalExtractColumn
@@ -338,7 +338,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    initCallback: (...args) => globalTableau().initCallback.apply(globalTableau(), [...args]),
+    initCallback: (...args) => globalTableau().initCallback.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * READONLY copy of tableau.joinEnum ( no documentation available )
      *
@@ -415,7 +415,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    log: (...args) => globalTableau().log.apply(globalTableau(), [...args]),
+    log: (...args) => globalTableau().log.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * REFERENCE to tableau.makeConnector
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.makeconnector
@@ -427,7 +427,7 @@ const TableauShim = {
      *
      * @returns {Object} WebDataConnector
      */
-    makeConnector: (...args) => globalTableau().makeConnector.apply(globalTableau(), [...args]),
+    makeConnector: (...args) => globalTableau().makeConnector.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * READONLY copy of tableau.numberFormatEnum
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.numberformatenum
@@ -587,7 +587,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    registerConnector: (...args) => globalTableau().registerConnector.apply(globalTableau(), [...args]),
+    registerConnector: (...args) => globalTableau().registerConnector.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * WRAPPER of tableau.reportProgress for backwards compatibility and shim version checking
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.reportProgress
@@ -609,7 +609,7 @@ const TableauShim = {
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.shutdown
      * @returns {undefined}
      */
-    shutdownCallback: (...args) => globalTableau().shutdownCallback.apply(globalTableau(), [...args]),
+    shutdownCallback: (...args) => globalTableau().shutdownCallback.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * REFERENCE to tableau.submit
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.submit
@@ -619,7 +619,7 @@ const TableauShim = {
      *
      * @returns {undefined}
      */
-    submit: (...args) => globalTableau().submit.apply(globalTableau(), [...args]),
+    submit: (...args) => globalTableau().submit.apply(globalTableau(), [...args]), // eslint-disable-line no-useless-call
     /**
      * READONLY copy of tableau.unitsFormatEnum
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.unitsformatenum

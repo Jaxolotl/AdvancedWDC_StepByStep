@@ -69,9 +69,9 @@ class SpotifyAuthentication {
      * 
      * @returns {Undefined}
      */
-    saveTokensToPassword ({ access_token, refresh_token } = {}) {
+    saveTokensToPassword ({ access_token, refresh_token } = {}) { // eslint-disable-line camelcase
 
-        if (!access_token || !refresh_token) {
+        if (!access_token || !refresh_token) { // eslint-disable-line camelcase
             throw new Error(TERMS.ERROR.SAVE_TOKENS_TO_PASSWD);
         }
 

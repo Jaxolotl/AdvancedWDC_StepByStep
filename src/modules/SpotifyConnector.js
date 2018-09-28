@@ -4,6 +4,7 @@ import TableauShim from './TableauShim';
 import SpotifyAuthentication from './SpotifyAuthentication';
 import UI from './UI';
 import TERMS from './termsDictionary';
+import SpotifyRequestor from './SpotifyRequestor';
 
 /**
  *
@@ -18,8 +19,10 @@ class SpotifyConnector extends Connector {
     init (initCallback) {
         TableauShim.log(`Connector.Init -> ${TableauShim.phase}`);
 
-        let spotifyAuthentication = new SpotifyAuthentication();
-        let tokens = spotifyAuthentication.getTokens();
+        let authentication = new SpotifyAuthentication();
+        let tokens = authentication.getTokens();
+
+        this.requestor = new SpotifyRequestor();
 
         if (tokens) {
             /**
@@ -36,8 +39,8 @@ class SpotifyConnector extends Connector {
              *      @see https://onlinehelp.tableau.com/current/online/en-us/to_fresh_data_saved_credentials.htm
              *      @see https://onlinehelp.tableau.com/current/pro/desktop/en-us/help.html#publishing_sharing_authentication.html
              */
-            spotifyAuthentication.saveUsername(`${TERMS.CONNECTOR_NAME}: ${(new Date()).toLocaleString()}`);
-            spotifyAuthentication.saveTokensToPassword(tokens);
+            authentication.saveUsername(`${TERMS.CONNECTOR_NAME}: ${(new Date()).toLocaleString()}`);
+            authentication.saveTokensToPassword(tokens);
 
             switch (TableauShim.phase) {
 
@@ -176,14 +179,31 @@ class SpotifyConnector extends Connector {
             return;
         }
 
-        /**
-         * Pass along the params required by the SchemaCallback signature
-         * 
-         * @argument {Array} Array<TableInfo> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
-         * @argument {Array} Array<StandardConnection> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
-         * 
-         */
-        done([], []);
+        // retrieve the schema
+        this.requestor.retrieveSchema().then((schema) => {
+
+            let { tables, standardConnections } = schema;
+            /**
+             * Pass along the params required by the SchemaCallback signature
+             * 
+             * @argument {Array} Array<TableInfo> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
+             * @argument {Array} Array<StandardConnection> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+             * 
+             */
+            done(tables, standardConnections);
+
+        }).catch((reason) => {
+            /**
+             * something went wrong during schema retrieval
+             * Let's communicate the error and log it
+             */
+
+            // error for developers to be logged
+            TableauShim.log(`Connector.Init -> ${reason} `);
+
+            // error to the user
+            TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
+        });
 
     }
 
