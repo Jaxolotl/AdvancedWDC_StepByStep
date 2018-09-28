@@ -4,6 +4,7 @@ import ProgressBarPlugin from 'progress-bar-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import InlineManifestWebpackPlugin from 'inline-manifest-webpack-plugin';
+import CleanWebpackPlugin from 'clean-webpack-plugin';
 import { version, name } from './package.json';
 
 const [MAJOR, MINOR, PATCH] = version.split('.');
@@ -72,6 +73,7 @@ export default {
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(['dist/']),
         new ProgressBarPlugin(),
         new MiniCssExtractPlugin({
             filename: `${name}.${MAJOR}.${MINOR}.${PATCH}.[name].css`,
