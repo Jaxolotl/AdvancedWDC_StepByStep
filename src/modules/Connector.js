@@ -103,6 +103,13 @@ class Connector {
             tableObject.appendRows(data);
         };
 
+        defer.promise.then((rows) => {
+            if (!_.isUndefined(rows)) {
+                tableObject.appendRows(rows);
+            }
+            dataDoneCallback();
+        });
+
         /**
          * This will contain all the non-function values that
          * provide information coming from Tableau shim, it will
@@ -111,16 +118,9 @@ class Connector {
          *
          * @type Object
          */
-        const tableInfoObject = JSON.parse(JSON.stringify(tableObject));
+        const tableProperties = JSON.parse(JSON.stringify(tableObject));
 
-        defer.promise.then((rows) => {
-            if (!_.isUndefined(rows)) {
-                tableObject.appendRows(rows);
-            }
-            dataDoneCallback();
-        });
-
-        this.data(tableObject.tableInfo.id, done, dataProgressCallback, tableInfoObject);
+        this.data(tableObject.tableInfo.id, done, dataProgressCallback, tableProperties);
     }
 
     /**

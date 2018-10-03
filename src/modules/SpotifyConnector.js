@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import Connector from './Connector';
 import TableauShim from './TableauShim';
-import SpotifyAuthentication from './SpotifyAuthentication';
+import Authentication from './Authentication';
 import UI from './UI';
 import TERMS from './termsDictionary';
-import SpotifyRequestor from './SpotifyRequestor';
+import Requestor from './Requestor';
+import Schema from './Schema';
+import TopArtists from './dataviews/TopArtists';
+import TopTracks from './dataviews/TopTracks';
 
 /**
  *
@@ -19,10 +22,10 @@ class SpotifyConnector extends Connector {
     init (initCallback) {
         TableauShim.log(`Connector.Init -> ${TableauShim.phase}`);
 
-        let authentication = new SpotifyAuthentication();
+        let authentication = new Authentication();
         let tokens = authentication.getTokens();
 
-        this.requestor = new SpotifyRequestor();
+        this.requestor = new Requestor({ authentication });
 
         if (tokens) {
             /**
@@ -179,8 +182,10 @@ class SpotifyConnector extends Connector {
             return;
         }
 
+        let schema = new Schema({ requestor: this.requestor });
+
         // retrieve the schema
-        this.requestor.retrieveSchema().then((schema) => {
+        schema.retrieveSchema().then((schema) => {
 
             let { tables, standardConnections } = schema;
             /**
@@ -199,7 +204,7 @@ class SpotifyConnector extends Connector {
              */
 
             // error for developers to be logged
-            TableauShim.log(`Connector.Init -> ${reason} `);
+            TableauShim.log(`Connector.schema -> ${reason} `);
 
             // error to the user
             TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
@@ -223,18 +228,68 @@ class SpotifyConnector extends Connector {
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
      * @param {function} dataProgressCallback
      * 
-     * Reference to Table
+     * Serializable data of Table object
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table
-     * @param {function} tableInfoObject
+     * @param {function} tableProperties
      * 
      * @returns {undefined}
      */
-    data (tableId, done, dataProgressCallback, tableInfoObject) { // eslint-disable-line no-unused-vars
+    data (tableId, done, dataProgressCallback, tableProperties) { // eslint-disable-line no-unused-vars
 
-        // send the rows to Tableau ( Array<Array<any>> )
-        // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-        done([]);
+        let dataView = this.getDataViewInstance({ tableId, tableProperties });
 
+        return dataView.getFlattenedData().then((data) => {
+
+            // send the rows to Tableau ( Array<Array<any>> )
+            // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+            done(data);
+
+        }).catch((reason) => {
+            /**
+             * something went wrong during dat retrieval
+             * Let's communicate the error and log it
+             */
+
+            // error for developers to be logged
+            TableauShim.log(`Connector.data -> ${reason} `);
+
+            // error to the user
+            TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
+        });
+
+    }
+
+    /**
+     * This method is just documentational, it'd be better to follow a design pattern ( e.g Factory, Builder )
+     * @see https://loredanacirstea.github.io/es6-design-patterns/
+     * 
+     * @param {Object} $0
+     * @param {Object} $0.tableId just the Table.id for easy documentation
+     * @param {Object} $0.tableProperties Serializable data of Table object
+     * 
+     * @returns {Object} Instance of DataVew
+     */
+    getDataViewInstance ({ tableId, tableProperties }) {
+
+        let DataViewClass;
+
+        switch (tableId) {
+            case 'topArtists':
+                DataViewClass = TopArtists;
+                break;
+            case 'topTracks':
+                DataViewClass = TopTracks;
+                break;
+            default:
+                DataViewClass = TopArtists;
+                break;
+        }
+
+        let { tableInfo: { columns } } = tableProperties;
+
+        let DataViewInstance = new DataViewClass({ requestor: this.requestor, tableId }).defineMappingRules({ columns });
+
+        return DataViewInstance;
     }
 
 }

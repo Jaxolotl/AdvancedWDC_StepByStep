@@ -23,7 +23,7 @@ function getHashParams () {
 /**
  * Helper object which abstracts away most of the authentication related connector functionality
  */
-class SpotifyAuthentication {
+class Authentication {
 
     /**
      * Gets the access_token and refresh_token from either tableau.password or query hash
@@ -123,4 +123,4 @@ class SpotifyAuthentication {
     }
 }
 
-export default SpotifyAuthentication;
+export default Authentication;
