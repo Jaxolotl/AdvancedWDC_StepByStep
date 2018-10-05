@@ -5,8 +5,12 @@ import SpotifyWebApi from 'spotify-web-api-node';
 // import Mapping from './Mapping';
 // import _ from 'lodash';
 // import Q from 'q';
-// const DEFAULT_PAGE_SIZE = 50;
+
 // const DEFAULT_MAX_RESULTS = 1000;
+
+export const DEFAULT_TIME_RANGE = 'short_term';
+export const DEFAULT_OFFSET = 0;
+export const DEFAULT_LIMIT = 10; // setting just 10 to show pagination later
 
 /**
  * Requestor
@@ -44,9 +48,9 @@ class Requestor {
      * 
      * @returns {Object} Promise/A+
      */
-    getTopArtists ({ timeRange = 'short_term', offset = 0, limit = 50 } = {}) { // eslint-disable-line no-unused-vars
+    getTopArtists ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
-        return this.apiLib.getMyTopArtists({ time_range: timeRange, limit });
+        return this.apiLib.getMyTopArtists({ time_range: timeRange, limit, offset });
 
     }
 
@@ -63,9 +67,47 @@ class Requestor {
      * 
      * @returns {Object} Promise/A+
      */
-    getTopTracks ({ timeRange = 'short_term', offset = 0, limit = 50 } = {}) { // eslint-disable-line no-unused-vars
+    getTopTracks ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
-        return this.apiLib.getMyTopTracks({ time_range: timeRange, limit });
+        return this.apiLib.getMyTopTracks({ time_range: timeRange, limit, offset });
+
+    }
+
+    /**
+     * 
+     * @param {Object} $0
+     * @param {String} $0.market 
+     * @param {Number} $0.offset
+     * @param {Number} $0.limit
+     * 
+     * @see https://github.com/thelinmichael/spotify-web-api-node
+     * 
+     * @see https://developer.spotify.com/documentation/web-api/reference/library/get-users-saved-albums/
+     * 
+     * @returns {Object} Promise/A+
+     */
+    getAlbums ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+
+        return this.apiLib.getMySavedAlbums({ market, limit, offset });
+
+    }
+
+    /**
+     * 
+     * @param {Object} $0
+     * @param {String} $0.market 
+     * @param {Number} $0.offset
+     * @param {Number} $0.limit
+     * 
+     * @see https://github.com/thelinmichael/spotify-web-api-node
+     * 
+     * @see https://developer.spotify.com/documentation/web-api/reference/library/get-users-saved-tracks/
+     * 
+     * @returns {Object} Promise/A+
+     */
+    getTracks ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+
+        return this.apiLib.getMySavedTracks({ market, limit, offset });
 
     }
 

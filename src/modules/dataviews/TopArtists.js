@@ -66,7 +66,9 @@ class TopArtists extends DataView {
      */
     getFlattenedData () {
 
-        return this.requestor.getTopArtists().then((response) => {
+        let { timeRange } = this.filters;
+
+        return this.requestor.getTopArtists({ timeRange }).then((response) => {
 
             let { items } = _.get(response, 'body');
 

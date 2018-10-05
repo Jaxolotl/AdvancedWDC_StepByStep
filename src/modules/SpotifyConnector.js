@@ -6,8 +6,11 @@ import UI from './UI';
 import TERMS from './termsDictionary';
 import Requestor from './Requestor';
 import Schema from './Schema';
+
 import TopArtists from './dataviews/TopArtists';
 import TopTracks from './dataviews/TopTracks';
+import Albums from './dataviews/Albums';
+import Tracks from './dataviews/Tracks';
 
 /**
  *
@@ -214,21 +217,25 @@ class SpotifyConnector extends Connector {
 
     /**
      * 
-     * The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
+     * tableId:
+     *      The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
      * @param {string} tableId
      * 
-     * Accept 1 parameter which will be passed to table.appendRows()
+     * done:
+     *      Accept 1 parameter which will be passed to table.appendRows()
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
      * and finally will call DataDoneCallback
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
      * @param {function} done
      * 
-     * Reference to Table:appendRows
+     * dataProgressCallback:
+     *      Wrapper of Table:appendRows
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
      * @param {function} dataProgressCallback
      * 
-     * Serializable data of Table object
+     * tableProperties:
+     *      Serializable data of Table object
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table
      * @param {function} tableProperties
      * 
@@ -267,9 +274,23 @@ class SpotifyConnector extends Connector {
      * @param {Object} $0.tableId just the Table.id for easy documentation
      * @param {Object} $0.tableProperties Serializable data of Table object
      * 
-     * @returns {Object} Instance of DataVew
+     * @returns {Object} Instance of DataView
      */
     getDataViewInstance ({ tableId, tableProperties }) {
+
+        /**
+         * Connection data is the mechanism to pass data between phases (interacvite|gatherData|auth)
+         * 
+         * The TableauShim performs for you the "JSON.stringify <-> JSON.parse" overhead,
+         * so you can pass an object and get always an object ( the shim will store the string for you ).
+         * The data MUST be serializable, and it's gonna be stored on the workbook as human readable data, 
+         * therefore YOU SHOULD NEVER pass sensitive information along connectionData
+         * 
+         * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#pass-data-between-phases
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.connectiondata
+         * 
+         */
+        let { filters = {} } = TableauShim.connectionData;
 
         let DataViewClass;
 
@@ -280,14 +301,27 @@ class SpotifyConnector extends Connector {
             case 'topTracks':
                 DataViewClass = TopTracks;
                 break;
+            case 'albums':
+                DataViewClass = Albums;
+                break;
+            case 'tracks':
+                DataViewClass = Tracks;
+                break;
             default:
                 DataViewClass = TopArtists;
                 break;
         }
 
+        /**
+         * We don't need to retrieve the table schema again,
+         * Tableau will pass the stored columns info along with the table properties
+         */
         let { tableInfo: { columns } } = tableProperties;
 
-        let DataViewInstance = new DataViewClass({ requestor: this.requestor, tableId }).defineMappingRules({ columns });
+        /**
+         * Make the Data View instance and define the rules to map the incoming data
+         */
+        let DataViewInstance = new DataViewClass({ requestor: this.requestor, tableId, filters }).defineMappingRules({ columns });
 
         return DataViewInstance;
     }

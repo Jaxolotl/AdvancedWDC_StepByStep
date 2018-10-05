@@ -108,7 +108,7 @@ const ADVANCED_SCHEMA = {
                 { 'id': 'added_at', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.datetime },
                 { 'id': 'artist_id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'genre2', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'image_link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },

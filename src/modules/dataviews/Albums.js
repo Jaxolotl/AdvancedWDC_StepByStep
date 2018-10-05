@@ -6,7 +6,7 @@ import _ from 'lodash';
 /**
  * 
  */
-class TopTracks extends DataView {
+class Albums extends DataView {
 
     /**
      * 
@@ -24,38 +24,41 @@ class TopTracks extends DataView {
             let col = rules[i];
 
             switch (col.id) {
-                case 'album_id':
-                    col.lookup = 'album.id';
+                case 'added_at':
+                    col.lookup = 'added_at';
                     break;
                 case 'artist_id':
-                    col.lookup = 'artists[0].id';
+                    col.lookup = 'album.artists[0].id';
                     break;
-                case 'artist_name':
-                    col.lookup = 'artists[0].name';
+                case 'genre1':
+                    col.lookup = 'album.genres[0]';
                     break;
-                case 'duration_ms':
-                    col.lookup = 'duration_ms';
-                    break;
-                case 'explicit':
-                    col.lookup = 'explicit';
+                case 'genre2':
+                    col.lookup = 'album.genres[1]';
                     break;
                 case 'href':
-                    col.lookup = 'href';
+                    col.lookup = 'album.href';
                     break;
                 case 'id':
-                    col.lookup = 'id';
+                    col.lookup = 'album.id';
+                    break;
+                case 'image_link':
+                    col.lookup = 'album.images[0].url';
                     break;
                 case 'name':
-                    col.lookup = 'name';
+                    col.lookup = 'album.name';
                     break;
-                case 'preview_url':
-                    col.lookup = 'preview_url';
-                    break;
-                case 'track_number':
-                    col.lookup = 'track_number';
+                case 'popularity':
+                    col.lookup = 'album.popularity';
                     break;
                 case 'uri':
-                    col.lookup = 'uri';
+                    col.lookup = 'album.uri';
+                    break;
+                case 'release_date':
+                    col.lookup = 'album.release_date';
+                    break;
+                case 'type':
+                    col.lookup = 'album.type';
                     break;
             }
         }
@@ -71,9 +74,7 @@ class TopTracks extends DataView {
      */
     getFlattenedData () {
 
-        let { timeRange } = this.filters;
-
-        return this.requestor.getTopTracks({ timeRange }).then((response) => {
+        return this.requestor.getAlbums().then((response) => {
 
             let { items } = _.get(response, 'body');
 
@@ -84,4 +85,4 @@ class TopTracks extends DataView {
     }
 }
 
-export default TopTracks;
+export default Albums;

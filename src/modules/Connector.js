@@ -10,8 +10,6 @@ class Connector {
 
     /**
      * Base override of tableau.init method
-     * If a customInit function has been defined on the concrete connector
-     * it will be executed, then it will call tableau.initCallback
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.init
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.initcallback
@@ -37,7 +35,6 @@ class Connector {
     /**
      * Wrapper for connector.getSchema
      * This separates the concrete connector implementation from the shim's one
-     * It also passes the tableau.connectionData values to the concrete connector setSchema()
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.getschema
      *
@@ -55,13 +52,22 @@ class Connector {
             });
         };
 
-        defer.promise.then((p) => {
-            // p.tables is required and represents the metadata about the table,
-            // and p.standardConnections contains the metadata for standard connections, or predefined joins.
+        defer.promise.then((data) => {
 
-            // http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
-            // http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
-            schemaCallback(p.tables, p.standardConnections);
+            let {
+                /**
+                 * tables is required and represents the metadata about the table
+                 * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
+                 */
+                tables,
+                /**
+                 * standardConnections contains the metadata for standard connections, or predefined joins
+                 * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+                 */
+                standardConnections
+            } = data;
+
+            schemaCallback(tables, standardConnections);
         });
 
         this.schema(done);
@@ -72,7 +78,6 @@ class Connector {
     /**
      * Wrapper for connector.getData
      * This separates the concrete connector implementation from the shim's one
-     * It also passes the lastRecordToken values to the concrete connector setData()
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.getdata
      *
@@ -113,14 +118,15 @@ class Connector {
         /**
          * This will contain all the non-function values that
          * provide information coming from Tableau shim, it will
-         * not include functionality, this will be restricted to
-         * the one proposed by WDC Framework
+         * not include functionality
          *
          * @type Object
          */
         const tableProperties = JSON.parse(JSON.stringify(tableObject));
 
-        this.data(tableObject.tableInfo.id, done, dataProgressCallback, tableProperties);
+        let { tableInfo: { id: tableId } = {} } = tableObject;
+
+        this.data(tableId, done, dataProgressCallback, tableProperties);
     }
 
     /**
