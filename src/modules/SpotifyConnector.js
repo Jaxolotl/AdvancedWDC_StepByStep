@@ -11,6 +11,7 @@ import TopArtists from './dataviews/TopArtists';
 import TopTracks from './dataviews/TopTracks';
 import Albums from './dataviews/Albums';
 import Tracks from './dataviews/Tracks';
+import TracksFeatures from './dataviews/TracksFeatures';
 
 /**
  *
@@ -217,39 +218,44 @@ class SpotifyConnector extends Connector {
 
     /**
      * 
+     * @param {Object} $0 Object for destructuring
+     * 
      * tableId:
      *      The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
-     * @param {string} tableId
+     * @param {string} $0.tableId
      * 
      * done:
      *      Accept 1 parameter which will be passed to table.appendRows()
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
      * and finally will call DataDoneCallback
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
-     * @param {function} done
+     * @param {function} $0.done
      * 
      * dataProgressCallback:
      *      Wrapper of Table:appendRows
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-     * @param {function} dataProgressCallback
+     * @param {function} $0.dataProgressCallback
      * 
      * tableProperties:
      *      Serializable data of Table object
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table
-     * @param {function} tableProperties
+     * @param {function} $0.tableProperties
      * 
      * @returns {undefined}
      */
-    data (tableId, done, dataProgressCallback, tableProperties) { // eslint-disable-line no-unused-vars
+    data ({ tableId, done, dataProgressCallback, tableProperties } = {}) { // eslint-disable-line no-unused-vars
 
         let dataView = this.getDataViewInstance({ tableId, tableProperties });
 
-        return dataView.getFlattenedData().then((data) => {
+        let { filterValues, isJoinFiltered } = tableProperties; // eslint-disable-line no-unused-vars
+
+        return dataView.getFlattenedData({ filterValues }).then((data) => {
 
             // send the rows to Tableau ( Array<Array<any>> )
             // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-            done(data);
+            dataProgressCallback(data);
+            done();
 
         }).catch((reason) => {
             /**
@@ -306,6 +312,9 @@ class SpotifyConnector extends Connector {
                 break;
             case 'tracks':
                 DataViewClass = Tracks;
+                break;
+            case 'tracksFeatures':
+                DataViewClass = TracksFeatures;
                 break;
             default:
                 DataViewClass = TopArtists;

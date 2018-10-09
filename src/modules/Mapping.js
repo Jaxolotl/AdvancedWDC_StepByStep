@@ -207,19 +207,21 @@ class Mapping {
         // make the base row
         while (++dataIndex < dataLength) {
             let itemData = data[dataIndex];
-
-            // smash cols and vals to build the base object
-            output[dataIndex] = this.mapItem({
-                itemData,
-                rules,
-                lookups,
-                ids,
-                fieldTransformationHandlers,
-                defaultValues
-            });
+            if (_.isPlainObject(itemData) && !_.isEmpty(itemData)) {
+                // smash cols and vals to build the base object
+                output[dataIndex] = this.mapItem({
+                    itemData,
+                    rules,
+                    lookups,
+                    ids,
+                    fieldTransformationHandlers,
+                    defaultValues
+                });
+            }
         }
 
-        return output;
+        // filter empty slots
+        return output.filter(item => item);
     }
 
     /**

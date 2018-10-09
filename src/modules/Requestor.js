@@ -113,6 +113,23 @@ class Requestor {
 
     /**
      * 
+     * @param {Object} $0
+     * @param {Array<Number>} $0.ids 
+     * @param {Number} $0.offset
+     * @param {Number} $0.limit
+     * 
+     * @see https://github.com/thelinmichael/spotify-web-api-node
+     * 
+     * @see https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/
+     * 
+     * @returns {Object} Promise/A+
+     */
+    getTracksFeatures ({ ids = [] } = {}) {
+        return this.apiLib.getAudioFeaturesForTracks(ids);
+    }
+
+    /**
+     * 
      * @returns {Object} Promise/A+
      */
     retrieveSchema () {

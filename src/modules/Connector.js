@@ -1,4 +1,4 @@
-import _ from 'lodash';
+// import _ from 'lodash';
 import Q from 'q';
 import TableauShim from './TableauShim';
 
@@ -86,34 +86,29 @@ class Connector {
      * @returns {undefined}
      */
     getData (tableObject, dataDoneCallback) {
-        let defer = Q.defer();
 
         /**
          * You must call it to say data gathering for this table is done.
-         *
+         * done is a more meaningful name for the function,
+         * also wrapping this, opens the door for better control and testing
          * @param {Array} data  structure: Array<Array<any>>
          * @returns {undefined}
          */
-        const done = (data) => {
-            defer.resolve(data);
+        const done = () => {
+            dataDoneCallback();
         };
 
         /**
-         * Used if we want to load data in chunks
-         *
+         * Send data in chumks to Tableau
+         * dataProgressCallback is a more meaningful name for the function,
+         * also wrapping this, opens the door for better control and testing
+         * 
          * @param {Array} data , structure: Array<Array<any>>
          * @returns {undefined}
          */
         const dataProgressCallback = (data) => {
             tableObject.appendRows(data);
         };
-
-        defer.promise.then((rows) => {
-            if (!_.isUndefined(rows)) {
-                tableObject.appendRows(rows);
-            }
-            dataDoneCallback();
-        });
 
         /**
          * This will contain all the non-function values that
@@ -124,9 +119,12 @@ class Connector {
          */
         const tableProperties = JSON.parse(JSON.stringify(tableObject));
 
+        /**
+         * Pass along tableId separately for easy consumption
+         */
         let { tableInfo: { id: tableId } = {} } = tableObject;
 
-        this.data(tableId, done, dataProgressCallback, tableProperties);
+        this.data({ tableId, done, dataProgressCallback, tableProperties });
     }
 
     /**

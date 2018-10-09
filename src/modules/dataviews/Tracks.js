@@ -60,60 +60,6 @@ class Tracks extends DataView {
                 case 'uri':
                     col.lookup = 'track.uri';
                     break;
-
-                // from Track Properties ( to retrieve later and join here? or to make it a separate dataview for users to join? )
-                case 'danceability':
-                    col.lookup = 'danceability';
-                    break;
-                case 'energy':
-                    col.lookup = 'energy';
-                    break;
-                case 'key':
-                    col.lookup = 'keyLookup[key]';
-                    col.transform = (key) => {
-                        let keyLookup = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'A♯', 'B'];
-                        return keyLookup[key];
-                    };
-                    col.defaultValue = null;
-                    break;
-                case 'loudness':
-                    col.lookup = 'loudness';
-                    break;
-                case 'mode':
-                    col.lookup = 'mode';
-                    col.transform = (mode) => {
-                        switch (parseInt(mode, 10)) {
-                            case 0:
-                                return 'Minor';
-                            case 1:
-                                return 'Major';
-                            default:
-                                return mode;
-                        }
-                    };
-                    col.defaultValue = null;
-                    break;
-                case 'speechiness':
-                    col.lookup = 'speechiness';
-                    break;
-                case 'acousticness':
-                    col.lookup = 'acousticness';
-                    break;
-                case 'instrumentalness':
-                    col.lookup = 'instrumentalness';
-                    break;
-                case 'liveness':
-                    col.lookup = 'liveness';
-                    break;
-                case 'valence':
-                    col.lookup = 'valence';
-                    break;
-                case 'tempo':
-                    col.lookup = 'tempo';
-                    break;
-                case 'time_signature':
-                    col.lookup = 'time_signature';
-                    break;
             }
         }
 

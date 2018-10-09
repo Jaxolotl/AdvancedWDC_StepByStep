@@ -134,7 +134,32 @@ const ADVANCED_SCHEMA = {
                 { 'id': 'name', 'alias': 'Name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'preview_url', 'alias': 'Track Preview Url', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'track_number', 'alias': 'Track Number', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
-                { 'id': 'uri', 'alias': 'Launch Spotify Link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'uri', 'alias': 'Launch Spotify Link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
+            ]
+        },
+        {
+            /**
+             * This table can be selected ONLY by joining it with tracks table
+             * Join filtering is only supported in WDC lib versions 2.2 and later.
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.joinOnly
+             * @see http://tableau.github.io/webdataconnector/docs/wdc_join_filtering
+             */
+            'joinOnly': true,
+            'alias': 'Tracks Features',
+            'id': 'tracksFeatures',
+            'columns': [
+                {
+                    'id': 'trackId',
+                    'alias': 'Track Id',
+                    'dataType': ENUMS_DICTIONARY.dataTypeEnum.string,
+                    /**
+                     * filterable (Optional)
+                     * 
+                     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.columninfo.filterable
+                     */
+                    filterable: true
+                },
                 {
                     'id': 'danceability',
                     /**
@@ -177,7 +202,14 @@ const ADVANCED_SCHEMA = {
                 { 'id': 'valence', 'alias': 'Valence (Musical Positiveness)', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.float, 'aggType': ENUMS_DICTIONARY.aggTypeEnum.avg, 'defaultFormat': { 'numberFormat': 'percentage' } },
                 { 'id': 'tempo', 'alias': 'Tempo (Beats per Minute)', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.float, 'aggType': ENUMS_DICTIONARY.aggTypeEnum.avg },
                 { 'id': 'time_signature', 'alias': 'Time Signature', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
-            ]
+            ],
+            /**
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.columninfo.foreignKey
+             */
+            'foreignKey': {
+                'tableId': 'tracks',
+                'columnId': 'id'
+            }
         }
     ],
     /**
