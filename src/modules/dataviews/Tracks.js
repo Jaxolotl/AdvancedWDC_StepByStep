@@ -34,7 +34,7 @@ class Tracks extends DataView {
                     col.lookup = 'track.artists[0].id';
                     break;
                 case 'artist_name':
-                    col.lookup = 'track.artist_name[0].id';
+                    col.lookup = 'track.artists[0].name';
                     break;
                 case 'duration_ms':
                     col.lookup = 'track.duration_ms';

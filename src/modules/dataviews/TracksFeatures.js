@@ -25,7 +25,7 @@ class TracksFeatures extends DataView {
 
             switch (col.id) {
                 // The Spotify ID for the track.
-                case 'trackId':
+                case 'id':
                     col.lookup = 'id';
                     break;
                 case 'danceability':
@@ -35,7 +35,7 @@ class TracksFeatures extends DataView {
                     col.lookup = 'energy';
                     break;
                 case 'key':
-                    col.lookup = 'keyLookup[key]';
+                    col.lookup = 'key';
                     col.transform = (key) => {
                         let keyLookup = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'A♯', 'B'];
                         return keyLookup[key];

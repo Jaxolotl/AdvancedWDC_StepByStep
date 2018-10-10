@@ -91,7 +91,7 @@ class Connector {
          * You must call it to say data gathering for this table is done.
          * done is a more meaningful name for the function,
          * also wrapping this, opens the door for better control and testing
-         * @param {Array} data  structure: Array<Array<any>>
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
          * @returns {undefined}
          */
         const done = () => {

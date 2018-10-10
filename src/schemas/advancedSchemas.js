@@ -12,16 +12,6 @@ const ADVANCED_SCHEMA = {
     'tables': [
         {
             /**
-             * alias (Optional)
-             * 
-             * An alias for this table to be shown to the user.
-             * This alias is editable by the user and must be unique across all tables used in a join.
-             * If this property is omitted, the table id will be used.
-             * 
-             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.alias
-             */
-            'alias': 'Top Artists',
-            /**
              * id
              * 
              * A unique id for this particular table.
@@ -31,6 +21,16 @@ const ADVANCED_SCHEMA = {
              * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
              */
             'id': 'topArtists',
+            /**
+             * alias (Optional)
+             * 
+             * An alias for this table to be shown to the user.
+             * This alias is editable by the user and must be unique across all tables used in a join.
+             * If this property is omitted, the table id will be used.
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.alias
+             */
+            'alias': 'Top Artists',
             /**
              * columns
              * 
@@ -51,6 +51,15 @@ const ADVANCED_SCHEMA = {
                      */
                     'id': 'followers',
                     /**
+                     * alias (Optional)
+                     * 
+                     * The user friendly alias of this column.
+                     * If this property is omitted, the column id will be used.
+                     * 
+                     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.columninfo.alias
+                     */
+                    'alias': 'Followers',
+                    /**
                      * dataType
                      * 
                      * The data type of the value that belong to this column
@@ -70,16 +79,16 @@ const ADVANCED_SCHEMA = {
             ]
         },
         {
-            'alias': 'Top Tracks',
             'id': 'topTracks',
+            'alias': 'Top Tracks',
             'columns': [
+                { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'album_id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'artist_id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'artist_name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'duration_ms', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
                 { 'id': 'explicit', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.bool },
                 { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'preview_url', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'track_number', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
@@ -87,30 +96,15 @@ const ADVANCED_SCHEMA = {
             ]
         },
         {
-            'alias': 'Artists',
-            'id': 'artists',
-            'columns': [
-                { 'id': 'followers', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
-                { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'genre2', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'image_link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'popularity', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'uri', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
-            ]
-        },
-        {
-            'alias': 'Albums',
             'id': 'albums',
+            'alias': 'Albums',
             'columns': [
+                { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'added_at', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.datetime },
                 { 'id': 'artist_id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'genre2', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'image_link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'popularity', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
@@ -120,9 +114,10 @@ const ADVANCED_SCHEMA = {
             ]
         },
         {
-            'alias': 'Tracks',
             'id': 'tracks',
+            'alias': 'Tracks',
             'columns': [
+                { 'id': 'id', 'alias': 'Track Id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'added_at', 'alias': 'Added At Time', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.datetime },
                 { 'id': 'album_id', 'alias': 'Album Id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'artist_id', 'alias': 'Artist Id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
@@ -130,7 +125,6 @@ const ADVANCED_SCHEMA = {
                 { 'id': 'duration_ms', 'alias': 'Song Duration (ms)', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
                 { 'id': 'explicit', 'alias': 'Is Explicit', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.bool },
                 { 'id': 'href', 'alias': 'Link to Track', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
-                { 'id': 'id', 'alias': 'Track Id', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'name', 'alias': 'Name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'preview_url', 'alias': 'Track Preview Url', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
                 { 'id': 'track_number', 'alias': 'Track Number', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
@@ -138,19 +132,19 @@ const ADVANCED_SCHEMA = {
             ]
         },
         {
-            /**
-             * This table can be selected ONLY by joining it with tracks table
-             * Join filtering is only supported in WDC lib versions 2.2 and later.
-             * 
-             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.joinOnly
-             * @see http://tableau.github.io/webdataconnector/docs/wdc_join_filtering
-             */
-            'joinOnly': true,
-            'alias': 'Tracks Features',
             'id': 'tracksFeatures',
+            'alias': 'Tracks Features',
+            /**
+             * description (Optional)
+             * 
+             * A user friendly description of the contents in this table.
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.description-1
+             */
+            'description': 'This table can only be joined with Tracks table',
             'columns': [
                 {
-                    'id': 'trackId',
+                    'id': 'id',
                     'alias': 'Track Id',
                     'dataType': ENUMS_DICTIONARY.dataTypeEnum.string,
                     /**
@@ -162,14 +156,6 @@ const ADVANCED_SCHEMA = {
                 },
                 {
                     'id': 'danceability',
-                    /**
-                     * alias (Optional)
-                     * 
-                     * The user friendly alias of this column.
-                     * If this property is omitted, the column id will be used.
-                     * 
-                     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.columninfo.alias
-                     */
                     'alias': 'Danceability',
                     'dataType': ENUMS_DICTIONARY.dataTypeEnum.float,
                     /**
@@ -204,11 +190,70 @@ const ADVANCED_SCHEMA = {
                 { 'id': 'time_signature', 'alias': 'Time Signature', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
             ],
             /**
+             * This table can be selected ONLY by joining it with tracks table
+             * Join filtering is only supported in WDC lib versions 2.2 and later.
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.joinOnly
+             * @see http://tableau.github.io/webdataconnector/docs/wdc_join_filtering
+             */
+            'joinOnly': true,
+            /**
+             * foreignKey (Optional)
              * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.columninfo.foreignKey
              */
             'foreignKey': {
                 'tableId': 'tracks',
                 'columnId': 'id'
+            }
+        },
+        {
+            'id': 'tracksArtists',
+            'alias': 'Tracks Artists',
+            'description': 'This table can only be joined with Tracks table',
+            'columns': [
+                {
+                    'id': 'id',
+                    'dataType': ENUMS_DICTIONARY.dataTypeEnum.string,
+                    filterable: true
+                },
+                { 'id': 'followers', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
+                { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'genre2', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'image_link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'popularity', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'uri', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
+            ],
+            'joinOnly': true,
+            'foreignKey': {
+                'tableId': 'tracks',
+                'columnId': 'artist_id'
+            }
+        },
+        {
+            'id': 'albumsArtists',
+            'alias': 'Albums Artists',
+            'description': 'This table can only be joined with Albums table',
+            'columns': [
+                {
+                    'id': 'id',
+                    'dataType': ENUMS_DICTIONARY.dataTypeEnum.string,
+                    filterable: true
+                },
+                { 'id': 'followers', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.int },
+                { 'id': 'genre1', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'genre2', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'href', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'image_link', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'name', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'popularity', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string },
+                { 'id': 'uri', 'dataType': ENUMS_DICTIONARY.dataTypeEnum.string }
+            ],
+            'joinOnly': true,
+            'foreignKey': {
+                'tableId': 'albums',
+                'columnId': 'artist_id'
             }
         }
     ],
@@ -237,22 +282,16 @@ const ADVANCED_SCHEMA = {
              */
             'tables': [
                 {
-                    /**
-                     * id
-                     * 
-                     * The table ID
-                     */
-                    'id': 'artists',
-                    /**
-                     * alias
-                     * 
-                     * An alias for the table
-                     */
-                    'alias': 'Artists'
-                },
-                {
                     'id': 'tracks',
                     'alias': 'Tracks'
+                },
+                {
+                    'id': 'tracksFeatures',
+                    'alias': 'Features'
+                },
+                {
+                    'id': 'tracksArtists',
+                    'alias': 'Artists'
                 }
             ],
             /**
@@ -264,18 +303,24 @@ const ADVANCED_SCHEMA = {
             'joins': [
                 {
                     'left': {
-                        'tableAlias': 'Artists',
-                        'columnId': 'id'
-                    },
-                    'right': {
                         'tableAlias': 'Tracks',
                         'columnId': 'artist_id'
                     },
-                    /**
-                     * joinType
-                     * 
-                     * The join type, either 'inner' or 'left'
-                     */
+                    'right': {
+                        'tableAlias': 'Artists',
+                        'columnId': 'id'
+                    },
+                    'joinType': 'inner'
+                },
+                {
+                    'left': {
+                        'tableAlias': 'Tracks',
+                        'columnId': 'id'
+                    },
+                    'right': {
+                        'tableAlias': 'Features',
+                        'columnId': 'id'
+                    },
                     'joinType': 'inner'
                 }
             ]
@@ -284,23 +329,24 @@ const ADVANCED_SCHEMA = {
             'alias': 'Artists and Albums',
             'tables': [
                 {
-                    'id': 'artists',
-                    'alias': 'Artists'
-                },
-                {
                     'id': 'albums',
                     'alias': 'Albums'
+                },
+                {
+                    'id': 'albumsArtists',
+                    'alias': 'Artists'
                 }
             ],
             'joins': [
                 {
                     'left': {
-                        'tableAlias': 'Artists',
-                        'columnId': 'id'
-                    },
-                    'right': {
                         'tableAlias': 'Albums',
                         'columnId': 'artist_id'
+
+                    },
+                    'right': {
+                        'tableAlias': 'Artists',
+                        'columnId': 'id'
                     },
                     'joinType': 'inner'
                 }

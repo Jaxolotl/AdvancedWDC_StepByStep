@@ -10,7 +10,7 @@ import SpotifyWebApi from 'spotify-web-api-node';
 
 export const DEFAULT_TIME_RANGE = 'short_term';
 export const DEFAULT_OFFSET = 0;
-export const DEFAULT_LIMIT = 10; // setting just 10 to show pagination later
+export const DEFAULT_LIMIT = 50; // setting just 10 to show pagination later
 
 /**
  * Requestor
@@ -114,9 +114,7 @@ class Requestor {
     /**
      * 
      * @param {Object} $0
-     * @param {Array<Number>} $0.ids 
-     * @param {Number} $0.offset
-     * @param {Number} $0.limit
+     * @param {Array<Number>} $0.ids
      * 
      * @see https://github.com/thelinmichael/spotify-web-api-node
      * 
@@ -126,6 +124,21 @@ class Requestor {
      */
     getTracksFeatures ({ ids = [] } = {}) {
         return this.apiLib.getAudioFeaturesForTracks(ids);
+    }
+
+    /**
+     * 
+     * @param {Object} $0
+     * @param {Array<Number>} $0.ids
+     * 
+     * @see https://github.com/thelinmichael/spotify-web-api-node
+     * 
+     * @see https://developer.spotify.com/documentation/web-api/reference/artists/get-several-artists/
+     * 
+     * @returns {Object} Promise/A+
+     */
+    getArtists ({ ids = [] } = {}) {
+        return this.apiLib.getArtists(ids);
     }
 
     /**
