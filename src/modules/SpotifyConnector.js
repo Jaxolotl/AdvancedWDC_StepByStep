@@ -192,6 +192,9 @@ class SpotifyConnector extends Connector {
         // retrieve the schema
         schema.retrieveSchema().then((schema) => {
 
+            /**
+             * Destructure schema object for documentation purpose
+             */
             let { tables, standardConnections } = schema;
             /**
              * Pass along the params required by the SchemaCallback signature
@@ -203,7 +206,7 @@ class SpotifyConnector extends Connector {
              * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
              * 
              */
-            done(tables, standardConnections);
+            done({ tables, standardConnections });
 
         }).catch((reason) => {
             /**

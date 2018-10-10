@@ -40,39 +40,27 @@ class Connector {
      *
      * @param {Function} schemaCallback function to be called when table schema is ready to be informed
      *
-     * @returns {Object} Promise/A+
+     * @returns {Undefined}
      */
     getSchema (schemaCallback) {
-        let defer = Q.defer();
 
-        const done = (tables, standardConnections) => {
-            defer.resolve({
-                tables: tables,
-                standardConnections: standardConnections
-            });
-        };
-
-        defer.promise.then((data) => {
-
-            let {
-                /**
-                 * tables is required and represents the metadata about the table
-                 * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
-                 */
-                tables,
-                /**
-                 * standardConnections contains the metadata for standard connections, or predefined joins
-                 * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
-                 */
-                standardConnections
-            } = data;
-
+        /**
+         * 
+         * @param {Object} $0
+         * @param {Array} $0.tables (required) represents the metadata about the table
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
+         * 
+         * @param {Array} $0.standardConnections (optional) contains the metadata for standard connections, or predefined joins
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+         * 
+         * @returns {Undefined}
+         */
+        const done = ({ tables, standardConnections } = {}) => {
             schemaCallback(tables, standardConnections);
-        });
+        };
 
         this.schema(done);
 
-        return defer.promise;
     }
 
     /**
@@ -111,8 +99,8 @@ class Connector {
         };
 
         /**
-         * This will contain all the non-function values that
-         * provide information coming from Tableau shim, it will
+         * This will contain all the serializable structure and data that
+         * provides information coming from Tableau shim, it will
          * not include functionality
          *
          * @type Object
