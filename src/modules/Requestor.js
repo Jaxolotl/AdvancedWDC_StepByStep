@@ -11,7 +11,7 @@ import TERMS from './termsDictionary';
 
 export const DEFAULT_TIME_RANGE = 'short_term';
 export const DEFAULT_OFFSET = 0;
-export const DEFAULT_LIMIT = 50; // setting just 10 to show pagination later
+export const DEFAULT_LIMIT = 50;
 
 /**
  * Requestor

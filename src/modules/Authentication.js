@@ -64,8 +64,8 @@ class Authentication {
 
     /**
      * @param {Object} $0
-     * @param {String} $.access_token
-     * @param {String} $.refresh_token
+     * @param {String} $0.access_token
+     * @param {String} $0.refresh_token
      * 
      * @returns {Undefined}
      */
