@@ -1,5 +1,5 @@
 // import _ from 'lodash';
-import Q from 'q';
+// import Q from 'q';
 import TableauShim from './TableauShim';
 
 /**

@@ -1,7 +1,8 @@
 
 import ADVANCED_SCHEMA from '../schemas/advancedSchemas';
 import SpotifyWebApi from 'spotify-web-api-node';
-// import TableauShim from './TableauShim';
+import TableauShim from './TableauShim';
+import TERMS from './termsDictionary';
 // import Mapping from './Mapping';
 // import _ from 'lodash';
 // import Q from 'q';
@@ -50,6 +51,8 @@ class Requestor {
      */
     getTopArtists ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
+        TableauShim.reportProgress(`Retrieving Artists:\n ${TERMS.TIME_RANGE[timeRange.toUpperCase()]} \n offet:${offset} \n limit: ${limit}`);
+
         return this.apiLib.getMyTopArtists({ time_range: timeRange, limit, offset });
 
     }
@@ -68,6 +71,8 @@ class Requestor {
      * @returns {Object} Promise/A+
      */
     getTopTracks ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+
+        TableauShim.reportProgress(`Retrieving Tracks:\n ${TERMS.TIME_RANGE[timeRange.toUpperCase()]} \n offet:${offset} \n limit: ${limit}`);
 
         return this.apiLib.getMyTopTracks({ time_range: timeRange, limit, offset });
 
@@ -88,6 +93,8 @@ class Requestor {
      */
     getAlbums ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
+        TableauShim.reportProgress(`Retrieving Albums:\n offet:${offset} \n limit: ${limit}`);
+
         return this.apiLib.getMySavedAlbums({ market, limit, offset });
 
     }
@@ -107,6 +114,8 @@ class Requestor {
      */
     getTracks ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
+        TableauShim.reportProgress(`Retrieving Albums:\n offet:${offset} \n limit: ${limit}`);
+
         return this.apiLib.getMySavedTracks({ market, limit, offset });
 
     }
@@ -123,6 +132,9 @@ class Requestor {
      * @returns {Object} Promise/A+
      */
     getTracksFeatures ({ ids = [] } = {}) {
+
+        TableauShim.reportProgress(`Retrieving Track Features by id:\n ${ids.length} records`);
+
         return this.apiLib.getAudioFeaturesForTracks(ids);
     }
 
@@ -138,6 +150,9 @@ class Requestor {
      * @returns {Object} Promise/A+
      */
     getArtists ({ ids = [] } = {}) {
+
+        TableauShim.reportProgress(`Retrieving Artists by id:\n ${ids.length} records`);
+
         return this.apiLib.getArtists(ids);
     }
 
