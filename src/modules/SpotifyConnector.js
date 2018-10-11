@@ -313,7 +313,7 @@ class SpotifyConnector extends Connector {
             TableauShim.log(`Connector.data -> ${reason} `);
 
             // error to the user
-            TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
+            TableauShim.abortWithError(reason.customMessage || TERMS.ERROR.DEFAULT_ERROR);
         });
 
     }

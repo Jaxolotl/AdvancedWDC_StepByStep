@@ -1,6 +1,8 @@
 
 import ADVANCED_SCHEMA from '../schemas/advancedSchemas';
 import SpotifyWebApi from 'spotify-web-api-node';
+import Q from 'q';
+import TERMS from './termsDictionary';
 
 export const DEFAULT_TIME_RANGE = 'short_term';
 export const DEFAULT_OFFSET = 0;
@@ -32,6 +34,23 @@ class Requestor {
     /**
      * 
      * @param {Object} $0
+     * @param {String} $0.name
+     * @param {String} $0.message
+     * @param {Number} $0.statusCode
+     * @returns {String}
+     */
+    statusCodeInterceptor ({ name, message, statusCode } = {}) {
+
+        if (TERMS.STATUS_CODES.hasOwnProperty(statusCode)) {
+            return TERMS.STATUS_CODES[statusCode];
+        }
+
+        return `${name}: ${message} (${statusCode})`;
+    }
+
+    /**
+     * 
+     * @param {Object} $0
      * @param {String} $0.timeRange long_term|medium_term|short_term 
      * @param {Number} $0.offset
      * @param {Number} $0.limit
@@ -42,7 +61,9 @@ class Requestor {
      */
     getTopArtists ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
 
-        return this.apiLib.getMyTopArtists({ time_range: timeRange, limit, offset });
+        return this.apiLib.getMyTopArtists({ time_range: 'bla', limit, offset }).catch((reason) => {
+            return Q.reject({ customMessage: this.statusCodeInterceptor(reason) });
+        });
 
     }
 
