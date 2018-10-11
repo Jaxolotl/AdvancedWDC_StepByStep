@@ -2,6 +2,7 @@
 import DataView from './DataView';
 import Q from 'q';
 import _ from 'lodash';
+import TableauShim from '../TableauShim';
 
 /**
  * 
@@ -100,6 +101,17 @@ class TracksFeatures extends DataView {
     getFlattenedData ({ dataProgressCallback, filterValues = [], defer = Q.defer() } = {}) {
 
         let ids = filterValues.splice(0, 50);
+
+        /**
+         * no ids?
+         * resolve and get out
+         */
+        if (!ids.length) {
+            defer.resolve();
+            return defer.promise;
+        }
+
+        TableauShim.reportProgress(`Retrieving ${ids.length} Tracks Features\n ${filterValues.length} remaining`);
 
         this.requestor.getTracksFeatures({ ids }).then((response) => {
 

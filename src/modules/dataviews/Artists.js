@@ -2,6 +2,7 @@
 import DataView from './DataView';
 import Q from 'q';
 import _ from 'lodash';
+import TableauShim from '../TableauShim';
 
 /**
  * 
@@ -61,21 +62,57 @@ class Artists extends DataView {
 
     /**
      * @param {Object} $0
+     * @param {Function} $0.dataProgressCallback callback to send the data to Tableau
      * @param {Object} $0.filterValues list of IDS for the request
+     * @param {Function<Q.Deferred>} $0.defer Deferred object to pass the promise along the recursion
      * 
      * @returns {Object} Promise/A+
      * 
      */
-    getFlattenedData ({ filterValues = [] } = {}) {
+    getFlattenedData ({ dataProgressCallback, filterValues = [], defer = Q.defer() } = {}) {
 
-        return this.requestor.getArtists({ ids: filterValues }).then((response) => {
+        let ids = filterValues.splice(0, 50);
+
+        /**
+         * no ids?
+         * resolve and get out
+         */
+        if (!ids.length) {
+            defer.resolve();
+            return defer.promise;
+        }
+
+        TableauShim.reportProgress(`Retrieving ${ids.length} Artists\n ${filterValues.length} remaining`);
+
+        this.requestor.getArtists({ ids: filterValues }).then((response) => {
 
             let { artists: items } = _.get(response, 'body');
 
+            /**
+             * No more data?
+             * Resolve the promise and return it
+             */
+            if (!items.length) {
+                defer.resolve();
+                return defer.promise;
+            }
+
             let flattenedData = this.mapping.flattenData(items);
 
-            return Q(flattenedData);
-        });
+            /**
+             * Send the flattened data to tableau and release memory
+             */
+            dataProgressCallback(flattenedData);
+
+            /**
+             * oh! we have more data
+             * Let's get it!
+             */
+            this.getFlattenedData({ dataProgressCallback, defer, filterValues });
+
+        }).catch(defer.reject);
+
+        return defer.promise;
     }
 }
 

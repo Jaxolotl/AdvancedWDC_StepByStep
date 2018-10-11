@@ -2,6 +2,7 @@
 import DataView from './DataView';
 import Q from 'q';
 import _ from 'lodash';
+import TableauShim from '../TableauShim';
 
 /**
  * 
@@ -87,9 +88,11 @@ class TopTracks extends DataView {
              * Assing the paging object values
              * @see https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks
              */
-            let { items, next, offset, limit } = _.get(response, 'body');
+            let { items, next, offset, limit, total } = _.get(response, 'body');
 
             let flattenedData = this.mapping.flattenData(items);
+
+            TableauShim.reportProgress(`Retrieving Top Tracks:\ntotal: ${total}\n offet:${offset} \n limit: ${limit}`);
 
             /**
              * Send the flattened data to tableau and release memory
