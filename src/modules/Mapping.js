@@ -1,7 +1,3 @@
-/**
- * @see /docs/doc/Data-Mapping-v2.md
- */
-
 import _ from 'lodash';
 import ErrorHelper from './ErrorHelper';
 import { ENUMS_DICTIONARY } from '@jaxolotl/wdclib';

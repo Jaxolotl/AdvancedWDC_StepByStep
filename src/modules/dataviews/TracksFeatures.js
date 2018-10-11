@@ -100,7 +100,14 @@ class TracksFeatures extends DataView {
      */
     getFlattenedData ({ dataProgressCallback, filterValues = [], defer = Q.defer() } = {}) {
 
-        let ids = filterValues.splice(0, 50);
+        /**
+         * 
+         * A list of the Spotify IDs for the tracks.
+         * Maximum: 100 IDs.
+         * @see https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids
+         * @see https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/
+         */
+        let ids = filterValues.splice(-100);
 
         /**
          * no ids?

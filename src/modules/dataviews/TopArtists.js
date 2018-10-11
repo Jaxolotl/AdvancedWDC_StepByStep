@@ -109,6 +109,7 @@ class TopArtists extends DataView {
              * Increment the offset to get the next page
              */
             this.getFlattenedData({ dataProgressCallback, defer, offset: offset + limit });
+
         }).catch(defer.reject);
 
         return defer.promise;

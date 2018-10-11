@@ -71,7 +71,14 @@ class Artists extends DataView {
      */
     getFlattenedData ({ dataProgressCallback, filterValues = [], defer = Q.defer() } = {}) {
 
-        let ids = filterValues.splice(0, 50);
+        /**
+         * 
+         * A list of the Spotify IDs for the artists. 
+         * Maximum: 50 IDs.
+         * @see https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids
+         * @see https://developer.spotify.com/documentation/web-api/reference/artists/get-several-artists/
+         */
+        let ids = filterValues.splice(-50);
 
         /**
          * no ids?
@@ -84,7 +91,7 @@ class Artists extends DataView {
 
         TableauShim.reportProgress(`Retrieving ${ids.length} Artists\n ${filterValues.length} remaining`);
 
-        this.requestor.getArtists({ ids: filterValues }).then((response) => {
+        this.requestor.getArtists({ ids }).then((response) => {
 
             let { artists: items } = _.get(response, 'body');
 

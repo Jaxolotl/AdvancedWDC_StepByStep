@@ -36,8 +36,6 @@ class Requestor {
      * @param {Number} $0.offset
      * @param {Number} $0.limit
      * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
-     * 
      * @see https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/#query-parameters
      * 
      * @returns {Object} Promise/A+
@@ -54,8 +52,6 @@ class Requestor {
      * @param {String} $0.timeRange long_term|medium_term|short_term 
      * @param {Number} $0.offset
      * @param {Number} $0.limit
-     * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
      * 
      * @see https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/#query-parameters
      * 
@@ -74,8 +70,6 @@ class Requestor {
      * @param {Number} $0.offset
      * @param {Number} $0.limit
      * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
-     * 
      * @see https://developer.spotify.com/documentation/web-api/reference/library/get-users-saved-albums/
      * 
      * @returns {Object} Promise/A+
@@ -93,8 +87,6 @@ class Requestor {
      * @param {Number} $0.offset
      * @param {Number} $0.limit
      * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
-     * 
      * @see https://developer.spotify.com/documentation/web-api/reference/library/get-users-saved-tracks/
      * 
      * @returns {Object} Promise/A+
@@ -110,8 +102,9 @@ class Requestor {
      * @param {Object} $0
      * @param {Array<Number>} $0.ids
      * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
-     * 
+     * A list of the Spotify IDs for the tracks.
+     * Maximum: 100 IDs.
+     * @see https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids
      * @see https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/
      * 
      * @returns {Object} Promise/A+
@@ -127,8 +120,9 @@ class Requestor {
      * @param {Object} $0
      * @param {Array<Number>} $0.ids
      * 
-     * @see https://github.com/thelinmichael/spotify-web-api-node
-     * 
+     * A list of the Spotify IDs for the artists. 
+     * Maximum: 50 IDs.
+     * @see https://developer.spotify.com/documentation/web-api/#spotify-uris-and-ids
      * @see https://developer.spotify.com/documentation/web-api/reference/artists/get-several-artists/
      * 
      * @returns {Object} Promise/A+
