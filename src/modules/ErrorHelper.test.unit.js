@@ -19,6 +19,8 @@ describe('ErrorHelper Module SHOULD', () => {
     it('customizeGenericError should add stringify, log, and wdcCustomError to a standard Error object', () => {
         let err = new Error('Sample Error');
 
+        expect(() => ErrorHelper.customizeGenericError('err')).toThrow(/customizeGenericError invoked with invalid error input/);
+
         expect(err.stringify).toBeUndefined();
         expect(err.log).toBeUndefined();
         expect(err.throw).toBeUndefined();

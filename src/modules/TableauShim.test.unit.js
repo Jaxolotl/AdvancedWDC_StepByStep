@@ -50,29 +50,65 @@ describe('TableauShim Module Test Suit', () => {
 
     it('Pre-assigned default properties should match data type', () => {
         expect(TableauShim.abortForAuth).toBeInstanceOf(Function);
+        TableauShim.abortForAuth(5);
+        expect(mockGlobalTableau.abortForAuth).toBeCalledWith(5);
+
         expect(TableauShim.abortForAuthentication).toBeInstanceOf(Function);
+        TableauShim.abortForAuthentication(5);
+        expect(mockGlobalTableau.abortForAuth).toBeCalledWith(5);
+
         expect(TableauShim.abortWithError).toBeInstanceOf(Function);
+        TableauShim.abortWithError(5);
+        expect(mockGlobalTableau.abortWithError).toBeCalledWith(5);
+
         expect(TableauShim.addCrossOriginException).toBeInstanceOf(Function);
+        TableauShim.addCrossOriginException(5);
+        expect(mockGlobalTableau.addCrossOriginException).toBeCalledWith(5);
+
+        expect(TableauShim.dataCallback).toBeInstanceOf(Function);
+        TableauShim.dataCallback(5);
+        expect(mockGlobalTableau.dataCallback).toBeCalledWith(5);
+
+        expect(TableauShim.initCallback).toBeInstanceOf(Function);
+        TableauShim.initCallback(5);
+        expect(mockGlobalTableau.initCallback).toBeCalledWith(5);
+
+        expect(TableauShim.registerConnector).toBeInstanceOf(Function);
+        TableauShim.registerConnector(5);
+        expect(mockGlobalTableau.registerConnector).toBeCalledWith(5);
+
+        expect(TableauShim.reportProgress).toBeInstanceOf(Function);
+        TableauShim.reportProgress(5);
+        expect(mockGlobalTableau.reportProgress).toBeCalledWith(5);
+
+        expect(TableauShim.shutdownCallback).toBeInstanceOf(Function);
+        TableauShim.shutdownCallback(5);
+        expect(mockGlobalTableau.shutdownCallback).toBeCalledWith(5);
+
+        expect(TableauShim.submit).toBeInstanceOf(Function);
+        TableauShim.submit(5);
+        expect(mockGlobalTableau.submit).toBeCalledWith(5);
+
+        expect(TableauShim.log).toBeInstanceOf(Function);
+        TableauShim.log(5);
+        expect(mockGlobalTableau.log).toBeCalledWith(5);
+
+        expect(TableauShim.makeConnector).toBeInstanceOf(Function);
+        TableauShim.makeConnector(5);
+        expect(mockGlobalTableau.makeConnector).toBeCalledWith(5);
+
         expect(TableauShim.aggTypeEnum).toBeInstanceOf(Object);
         expect(TableauShim.authPurposeEnum).toBeInstanceOf(Object);
         expect(TableauShim.authTypeEnum).toBeInstanceOf(Object);
         expect(TableauShim.columnRoleEnum).toBeInstanceOf(Object);
         expect(TableauShim.columnTypeEnum).toBeInstanceOf(Object);
-        expect(TableauShim.dataCallback).toBeInstanceOf(Function);
         expect(TableauShim.dataTypeEnum).toBeInstanceOf(Object);
         expect(TableauShim.geographicRoleEnum).toBeInstanceOf(Object);
         expect(TableauShim.headersCallback).toBeInstanceOf(Function);
-        expect(TableauShim.initCallback).toBeInstanceOf(Function);
         expect(TableauShim.joinEnum).toBeInstanceOf(Object);
         expect(TableauShim.localeEnum).toBeInstanceOf(Object);
-        expect(TableauShim.log).toBeInstanceOf(Function);
-        expect(TableauShim.makeConnector).toBeInstanceOf(Function);
         expect(TableauShim.numberFormatEnum).toBeInstanceOf(Object);
         expect(TableauShim.phaseEnum).toBeInstanceOf(Object);
-        expect(TableauShim.registerConnector).toBeInstanceOf(Function);
-        expect(TableauShim.reportProgress).toBeInstanceOf(Function);
-        expect(TableauShim.shutdownCallback).toBeInstanceOf(Function);
-        expect(TableauShim.submit).toBeInstanceOf(Function);
         expect(TableauShim.unitsFormatEnum).toBeInstanceOf(Object);
 
     });
