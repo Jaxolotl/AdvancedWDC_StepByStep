@@ -6,6 +6,7 @@ import UI from './UI';
 import TERMS from './termsDictionary';
 import Requestor from './Requestor';
 import Schema from './Schema';
+import ErrorHelper from './ErrorHelper';
 
 import TopArtists from './dataviews/TopArtists';
 import TopTracks from './dataviews/TopTracks';
@@ -215,7 +216,7 @@ class SpotifyConnector extends Connector {
              */
 
             // error for developers to be logged
-            TableauShim.log(`Connector.schema -> ${reason} `);
+            ErrorHelper.createError('Connector.schema ->', JSON.stringify(reason)).log();
 
             // error to the user
             TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
@@ -310,7 +311,7 @@ class SpotifyConnector extends Connector {
              */
 
             // error for developers to be logged
-            TableauShim.log(`Connector.data -> ${reason} `);
+            ErrorHelper.createError('Connector.data ->', JSON.stringify(reason)).log();
 
             // error to the user
             TableauShim.abortWithError(reason.customMessage || TERMS.ERROR.DEFAULT_ERROR);
@@ -373,7 +374,7 @@ class SpotifyConnector extends Connector {
                  */
 
                 // error for developers to be logged
-                TableauShim.log(`Connector.getDataViewInstance -> ${tableId} not found on Data View Classes`);
+                ErrorHelper.createError('Connector.getDataViewInstance ->', `${tableId} not found on Data View Classes`).log();
 
                 // error to the user
                 throw new Error(TERMS.ERROR.DEFAULT_ERROR);
