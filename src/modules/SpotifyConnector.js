@@ -7,6 +7,13 @@ import TERMS from './termsDictionary';
 import Requestor from './Requestor';
 import Schema from './Schema';
 
+import TopArtists from './dataviews/TopArtists';
+import TopTracks from './dataviews/TopTracks';
+import Albums from './dataviews/Albums';
+import Tracks from './dataviews/Tracks';
+import TracksFeatures from './dataviews/TracksFeatures';
+import Artists from './dataviews/Artists';
+
 /**
  *
  */
@@ -246,10 +253,144 @@ class SpotifyConnector extends Connector {
      */
     data ({ tableId, done, dataProgressCallback, tableProperties } = {}) { // eslint-disable-line no-unused-vars
 
-        // send the rows to Tableau ( Array<Array<any>> )
-        // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-        done([]);
+        /**
+         * Destructure tableProperties object for documentation purpose
+         */
+        let {
+            /**
+             * Do we have documentation for this?
+             */
+            filterColumnId, // eslint-disable-line no-unused-vars
+            /**
+             * An array of the values to use for filtering.
+             * For example, an array of the user ID values to get data for.
+             * @see http://tableau.github.io/webdataconnector/docs/wdc_join_filtering.html
+             */
+            filterValues,
+            /**
+             * Value assigned for incremental refreshes
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/wdc_incremental_refresh
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.incrementvalue
+             */
+            incrementValue, // eslint-disable-line no-unused-vars
+            /**
+             * Whether the table can be used for join filtering.
+             * If the schema properties are set correctly, this equals true.
+             * 
+             * @see http://tableau.github.io/webdataconnector/docs/wdc_join_filtering.html
+             */
+            isJoinFiltered // eslint-disable-line no-unused-vars
 
+        } = tableProperties;
+
+        let dataView = this.getDataViewInstance({ tableId, tableProperties });
+
+        return dataView.getFlattenedData({ filterValues }).then((data) => {
+
+            /**
+             * send the rows to Tableau ( Array<Array<any>> )
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+             */
+            dataProgressCallback(data);
+            /**
+             * In this case we're done so we don't need to send more data to Tableau for this Table
+             * Let tableau know we're done
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
+             */
+            done();
+
+        }).catch((reason) => {
+            /**
+             * d'oh! something went wrong during data retrieval!
+             * Let's communicate the error and log it
+             */
+
+            // error for developers to be logged
+            TableauShim.log(`Connector.data -> ${reason} `);
+
+            // error to the user
+            TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
+        });
+
+    }
+
+    /**
+     * This method is just documentational, it'd be better to follow a design pattern ( e.g Factory, Builder )
+     * @see https://loredanacirstea.github.io/es6-design-patterns/
+     * 
+     * @param {Object} $0
+     * @param {Object} $0.tableId just the Table.id for easy documentation
+     * @param {Object} $0.tableProperties Serializable data of Table object
+     * 
+     * @returns {Object} Instance of DataView
+     */
+    getDataViewInstance ({ tableId, tableProperties }) {
+
+        /**
+         * Connection data is the mechanism to pass data between phases (interacvite|gatherData|auth)
+         * 
+         * The TableauShim performs for you the "JSON.stringify <-> JSON.parse" overhead,
+         * so you can pass an object and get always an object ( the shim will store the string for you ).
+         * The data MUST be serializable, and it's gonna be stored on the workbook as human readable data, 
+         * therefore YOU SHOULD NEVER pass sensitive information along connectionData
+         * 
+         * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#pass-data-between-phases
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.connectiondata
+         * 
+         */
+        let { filters = {} } = TableauShim.connectionData;
+
+        let DataViewClass;
+
+        switch (tableId) {
+            case 'topArtists':
+                DataViewClass = TopArtists;
+                break;
+            case 'topTracks':
+                DataViewClass = TopTracks;
+                break;
+            case 'albums':
+                DataViewClass = Albums;
+                break;
+            case 'tracks':
+                DataViewClass = Tracks;
+                break;
+            case 'tracksFeatures':
+                DataViewClass = TracksFeatures;
+                break;
+            case 'tracksArtists':
+            case 'albumsArtists':
+                DataViewClass = Artists;
+                break;
+            default:
+                /**
+                 * d'oh! something went wrong during data retrieval!
+                 * Let's communicate the error and log it
+                 */
+
+                // error for developers to be logged
+                TableauShim.log(`Connector.getDataViewInstance -> ${tableId} not found on Data View Classes`);
+
+                // error to the user
+                throw new Error(TERMS.ERROR.DEFAULT_ERROR);
+        }
+
+        /**
+         * We don't need to retrieve the table schema again,
+         * Tableau will pass the stored columns info along with the table properties
+         * 
+         * Serializable information can be stored on the schema during schema definition and it'll be here
+         * e.g you might add a prop name 'color': 'red' to a column and it'll be accessible here for that column
+         */
+        let { tableInfo: { columns } } = tableProperties;
+
+        /**
+         * Make the Data View instance and define the rules to map the incoming data
+         */
+        let DataViewInstance = new DataViewClass({ requestor: this.requestor, tableId, filters }).defineMappingRules({ columns });
+
+        return DataViewInstance;
     }
 
 }
