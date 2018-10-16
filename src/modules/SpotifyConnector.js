@@ -4,6 +4,8 @@ import TableauShim from './TableauShim';
 import Authentication from './Authentication';
 import UI from './UI';
 import TERMS from './termsDictionary';
+import Requestor from './Requestor';
+import Schema from './Schema';
 
 /**
  *
@@ -20,6 +22,8 @@ class SpotifyConnector extends Connector {
 
         let authentication = new Authentication();
         let tokens = authentication.getTokens();
+
+        this.requestor = new Requestor({ authentication });
 
         if (tokens) {
             /**
@@ -176,17 +180,39 @@ class SpotifyConnector extends Connector {
             return;
         }
 
-        /**
-         * Pass along the params required by the SchemaCallback signature
-         * 
-         * @argument {Array} Array<TableInfo>
-         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
-         * 
-         * @argument {Array} Array<StandardConnection>
-         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
-         * 
-         */
-        done({ tables: [], standardConnections: [] });
+        let schema = new Schema({ requestor: this.requestor });
+
+        // retrieve the schema
+        schema.retrieveSchema().then((schema) => {
+
+            /**
+             * Destructure schema object for documentation purpose
+             */
+            let { tables, standardConnections } = schema;
+            /**
+             * Pass along the params required by the SchemaCallback signature
+             * 
+             * @argument {Array} Array<TableInfo>
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
+             * 
+             * @argument {Array} Array<StandardConnection>
+             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+             * 
+             */
+            done({ tables, standardConnections });
+
+        }).catch((reason) => {
+            /**
+             * something went wrong during schema retrieval
+             * Let's communicate the error and log it
+             */
+
+            // error for developers to be logged
+            TableauShim.log(`Connector.schema -> ${reason} `);
+
+            // error to the user
+            TableauShim.abortWithError(TERMS.ERROR.DEFAULT_ERROR);
+        });
 
     }
 
