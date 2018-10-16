@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import Q from 'q';
+// import _ from 'lodash';
+// import Q from 'q';
 import TableauShim from './TableauShim';
 
 /**
@@ -10,8 +10,6 @@ class Connector {
 
     /**
      * Base override of tableau.init method
-     * If a customInit function has been defined on the concrete connector
-     * it will be executed, then it will call tableau.initCallback
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.init
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.initcallback
@@ -37,42 +35,37 @@ class Connector {
     /**
      * Wrapper for connector.getSchema
      * This separates the concrete connector implementation from the shim's one
-     * It also passes the tableau.connectionData values to the concrete connector setSchema()
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.getschema
      *
      * @param {Function} schemaCallback function to be called when table schema is ready to be informed
      *
-     * @returns {Object} Promise/A+
+     * @returns {Undefined}
      */
     getSchema (schemaCallback) {
-        let defer = Q.defer();
 
-        const done = (tables, standardConnections) => {
-            defer.resolve({
-                tables: tables,
-                standardConnections: standardConnections
-            });
+        /**
+         * 
+         * @param {Object} $0
+         * @param {Array} $0.tables (required) represents the metadata about the table
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
+         * 
+         * @param {Array} $0.standardConnections (optional) contains the metadata for standard connections, or predefined joins
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+         * 
+         * @returns {Undefined}
+         */
+        const done = ({ tables, standardConnections } = {}) => {
+            schemaCallback(tables, standardConnections);
         };
 
-        defer.promise.then((p) => {
-            // p.tables is required and represents the metadata about the table,
-            // and p.standardConnections contains the metadata for standard connections, or predefined joins.
+        this.schema(done);
 
-            // http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.schemacallback
-            // http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
-            schemaCallback(p.tables, p.standardConnections);
-        });
-
-        this.setSchema(done);
-
-        return defer.promise;
     }
 
     /**
      * Wrapper for connector.getData
      * This separates the concrete connector implementation from the shim's one
-     * It also passes the lastRecordToken values to the concrete connector setData()
      *
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.webdataconnector.getdata
      *
@@ -81,21 +74,23 @@ class Connector {
      * @returns {undefined}
      */
     getData (tableObject, dataDoneCallback) {
-        let defer = Q.defer();
 
         /**
          * You must call it to say data gathering for this table is done.
-         *
-         * @param {Array} data  structure: Array<Array<any>>
+         * done is a more meaningful name for the function,
+         * also wrapping this, opens the door for better control and testing
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
          * @returns {undefined}
          */
-        const done = (data) => {
-            defer.resolve(data);
+        const done = () => {
+            dataDoneCallback();
         };
 
         /**
-         * Used if we want to load data in chunks
-         *
+         * Send data in chumks to Tableau
+         * dataProgressCallback is a more meaningful name for the function,
+         * also wrapping this, opens the door for better control and testing
+         * 
          * @param {Array} data , structure: Array<Array<any>>
          * @returns {undefined}
          */
@@ -104,23 +99,20 @@ class Connector {
         };
 
         /**
-         * This will contain all the scalar values that
+         * This will contain all the serializable structure and data that
          * provides information coming from Tableau shim, it will
-         * not include functionality, this will be restricted to
-         * the one proposed by WDC Framework
+         * not include functionality
          *
          * @type Object
          */
-        const tableInfoObject = JSON.parse(JSON.stringify(tableObject));
+        const tableProperties = JSON.parse(JSON.stringify(tableObject));
 
-        defer.promise.then((rows) => {
-            if (!_.isUndefined(rows)) {
-                tableObject.appendRows(rows);
-            }
-            dataDoneCallback();
-        });
+        /**
+         * Pass along tableId separately for easy consumption
+         */
+        let { tableInfo: { id: tableId } = {} } = tableObject;
 
-        this.setData(tableObject.tableInfo.id, done, dataProgressCallback, tableInfoObject);
+        this.data({ tableId, done, dataProgressCallback, tableProperties });
     }
 
     /**
@@ -135,16 +127,6 @@ class Connector {
         TableauShim.registerConnector(this);
 
         return this;
-    }
-
-    /**
-     * Wrapper for tableau.submit
-     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.submit
-     *
-     * @returns {undefined}
-     */
-    submit () {
-        TableauShim.submit();
     }
 }
 

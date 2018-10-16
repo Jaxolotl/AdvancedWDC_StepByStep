@@ -18,11 +18,11 @@
 </head>
 
 <body>
-  <div class="jumbotron vertical-center">
+  <div class="jumbotron vertical-center app" data-display="spinner">
     <div id="spinner">
       <i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i>
     </div>
-    <div id="content" style="display: none;">
+    <div id="content">
       <div class="logodiv">
         <img src="./assets/logo.png" height="80" />
       </div>
@@ -32,7 +32,7 @@
         </div>
         <form>
           <label class="radio-inline">
-            <input type="radio" name="term" checked="checked" value="short_term">Last Month
+            <input type="radio" name="term" value="short_term">Last Month
           </label>
           <label class="radio-inline">
             <input type="radio" name="term" value="medium_term">Last Six Months
@@ -47,7 +47,7 @@
         <button id="getdata" class="btn btn-primary">Get Data</button></p>
       </div>
     </div>
-    <div id="signIn" style="display: none;">
+    <div id="signIn">
       <div class="logodiv">
         <img src="./assets/logo.png" height="80" />
       </div>

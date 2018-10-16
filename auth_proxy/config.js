@@ -19,8 +19,7 @@ dotenv.config();
 
 export default {
     'PORT': PORT,
-    'CLIENT_ID': env.EPHEMERAL_CLIENT_ID,
-    'CLIENT_SECRET': env.EPHEMERAL_CLIENT_SECRET,
+    // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.authpurposeenum
     // DESKTOP SECRETS
     'EPHEMERAL': {
         'CLIENT_ID': env.EPHEMERAL_CLIENT_ID,
