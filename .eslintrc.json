@@ -1,7 +1,0 @@
-{
-    "extends": ["@jaxolotl/eslint-config-wdc-es6"],
-    "rules": {
-        "camelcase": 1,
-        "no-useless-call": 1
-    }
-}
