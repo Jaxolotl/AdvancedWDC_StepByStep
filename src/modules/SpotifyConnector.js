@@ -4,7 +4,6 @@ import TableauShim from './TableauShim';
 import Authentication from './Authentication';
 import UI from './UI';
 import TERMS from './termsDictionary';
-import Requestor from './Requestor';
 
 /**
  *
@@ -173,10 +172,9 @@ class SpotifyConnector extends Connector {
              * ( @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.phaseenum )
              * In which case the schema, isn't writable
              */
-            done([]);
+            done({ tables: [], standardConnections: [] });
             return;
         }
-
 
         /**
          * Pass along the params required by the SchemaCallback signature
@@ -188,7 +186,7 @@ class SpotifyConnector extends Connector {
          * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
          * 
          */
-        done({ tables, standardConnections });
+        done({ tables: [], standardConnections: [] });
 
     }
 
