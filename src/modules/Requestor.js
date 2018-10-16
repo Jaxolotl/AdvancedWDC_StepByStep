@@ -1,12 +1,13 @@
-import ADVANCED_SCHEMA from '../schemas/advancedSchemas';
 
+import ADVANCED_SCHEMA from '../schemas/advancedSchemas';
+export const DEFAULT_TIME_RANGE = 'short_term';
 /**
- * SpotifyRequestor
+ * Requestor
  * 
  * This class abstracts away most of the interaction with Spotify's API.
  * All methods return promises which will be resolved once the requested resource has been returned from Spotify
  */
-class SpotifyRequestor {
+class Requestor {
 
     /**
      * 
@@ -20,4 +21,4 @@ class SpotifyRequestor {
     }
 }
 
-export default SpotifyRequestor;
+export default Requestor;
