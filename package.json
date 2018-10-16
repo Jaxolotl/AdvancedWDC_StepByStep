@@ -2,7 +2,7 @@
   "author": "Javier Valderrama",
   "name": "advanced_wdc_step_by_step",
   "description": "Spotify Web Data Connector for Tableau",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "dependencies": {
     "jquery": "~3.1.0",
     "q": "~1.5.1"
@@ -15,7 +15,9 @@
     "build-dev": "webpack --mode=development",
     "lint": "eslint src/**/*.js auth_proxy/**/*.js",
     "lint-w": "esw -w --color src/**/*.js auth_proxy/**/*.js",
-    "nibble": "eslint-nibble src/ auth_proxy/"
+    "nibble": "eslint-nibble src/ auth_proxy/",
+    "test": "jest -c jest.config.json --coverage",
+    "test-w": "jest -c jest.config.json --watchAll"
   },
   "repository": {
     "type": "git",
@@ -45,6 +47,8 @@
     "html-loader": "~0.5.5",
     "html-webpack-plugin": "~3.2.0",
     "inline-manifest-webpack-plugin": "~4.0.1",
+    "jest": "~23.6.0",
+    "jest-cli": "~23.6.0",
     "lodash": "~4.17.10",
     "mini-css-extract-plugin": "~0.4.2",
     "progress-bar-webpack-plugin": "~1.11.0",
