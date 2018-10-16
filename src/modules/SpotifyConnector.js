@@ -183,7 +183,7 @@ class SpotifyConnector extends Connector {
              * ( @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.phaseenum )
              * In which case the schema, isn't writable
              */
-            done([]);
+            done({ tables: [], standardConnections: [] });
             return;
         }
 
