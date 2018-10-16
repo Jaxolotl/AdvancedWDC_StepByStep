@@ -1,0 +1,153 @@
+{
+    "tables" : [
+        {
+            "alias": "Top Artists",
+            "id": "topArtists",
+            "columns": [
+                { "id": "followers", "dataType": "int"},
+                { "id": "genre1", "dataType": "string" },
+                { "id": "genre2", "dataType": "string" },
+                { "id": "href",  "dataType": "string" },
+                { "id": "id",  "dataType": "string" },
+                { "id": "image_link",  "dataType": "string" },
+                { "id": "name",  "dataType": "string" },
+                { "id": "popularity",  "dataType": "string" },
+                { "id": "uri",  "dataType": "string" }
+            ]
+        },
+        {
+            "alias": "Top Tracks",
+            "id": "topTracks",
+            "columns": [
+                { "id": "album_id", "dataType": "string" },
+                { "id": "artist_id",  "dataType": "string" },
+                { "id": "artist_name",  "dataType": "string" },
+                { "id": "duration_ms",  "dataType": "int" },
+                { "id": "explicit",  "dataType": "bool" },
+                { "id": "href",  "dataType": "string" },
+                { "id": "id",  "dataType": "string" },
+                { "id": "name", "dataType": "string" },
+                { "id": "preview_url",  "dataType": "string" },
+                { "id": "track_number",  "dataType": "int" },
+                { "id": "uri",  "dataType": "string" }
+            ]
+        }, 
+        {
+            "alias": "Artists",
+            "id": "artists",
+            "columns": [
+                { "id": "followers", "dataType": "int" },
+                { "id": "genre1", "dataType": "string" },
+                { "id": "genre2", "dataType": "string" },
+                { "id": "href",  "dataType": "string" },
+                { "id": "id",  "dataType": "string" },
+                { "id": "image_link",  "dataType": "string" },  
+                { "id": "name",  "dataType": "string" },
+                { "id": "popularity",  "dataType": "string" },
+                { "id": "uri",  "dataType": "string" }
+            ]
+        },
+        {
+            "alias": "Albums",
+            "id": "albums",
+            "columns": [
+                { "id": "added_at", "dataType": "datetime" },
+                { "id": "artist_id",  "dataType": "string" },
+                { "id": "genre1", "dataType": "string" },
+                { "id": "genre1", "dataType": "string" },
+                { "id": "href",  "dataType": "string" },
+                { "id": "id",  "dataType": "string" },
+                { "id": "image_link",  "dataType": "string" },
+                { "id": "name",  "dataType": "string" },
+                { "id": "popularity",  "dataType": "string" },
+                { "id": "release_date",  "dataType": "date" },
+                { "id": "type", "dataType": "string" },
+                { "id": "uri",  "dataType": "string" }
+            ]
+        },
+        {
+            "alias": "Tracks",
+            "id": "tracks",
+            "columns": [
+                { "id": "added_at", "alias": "Added At Time", "dataType": "datetime" },
+                { "id": "album_id", "alias": "Album Id", "dataType": "string" },
+                { "id": "artist_id",  "alias": "Artist Id", "dataType": "string" },
+                { "id": "artist_name",  "alias": "Artist Name", "dataType": "string" },
+                { "id": "duration_ms",  "alias": "Song Duration (ms)", "dataType": "int" },
+                { "id": "explicit", "alias": "Is Explicit",  "dataType": "bool" },
+                { "id": "href",  "alias": "Link to Track", "dataType": "string" },
+                { "id": "id",  "alias": "Track Id", "dataType": "string" },
+                { "id": "name", "alias": "Name", "dataType": "string" },
+                { "id": "preview_url",  "alias": "Track Preview Url", "dataType": "string" },
+                { "id": "track_number",  "alias": "Track Number", "dataType": "int" },
+                { "id": "uri",  "alias": "Launch Spotify Link", "dataType": "string" },
+                { "id": "danceability", "alias": "Danceability",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "energy", "alias": "Energy",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"}  },
+                { "id": "key",  "alias": "Key", "dataType": "string" },
+                { "id": "loudness",  "alias" : "Loudness (dB)", "dataType": "float" },
+                { "id": "mode",  "alias" : "Mode (Major or Minor)", "dataType": "string" },
+                { "id": "speechiness",  "alias": "Speechiness",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "acousticness",   "alias": "Acousticness",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "instrumentalness",   "alias": "Instrumentalness",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "liveness",  "alias": "Liveness",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "valence",   "alias": "Valence (Musical Positiveness)",  "dataType": "float", "aggType" : "avg", "defaultFormat": {"numberFormat" : "percentage"} },
+                { "id": "tempo",   "alias": "Tempo (Beats per Minute)",  "dataType": "float", "aggType" : "avg" },
+                { "id": "time_signature", "alias": "Time Signature", "dataType": "string" }
+            ]
+        }
+    ],
+    "standardConnections" : [
+        {
+            "alias":"Artists and Tracks",
+            "tables":[
+                {
+                    "id":"artists",
+                    "alias":"Artists"
+                },
+                {
+                    "id":"tracks",
+                    "alias":"Tracks"
+                }
+            ],
+            "joins":[
+                {
+                    "left":{
+                        "tableAlias":"Artists",
+                        "columnId":"id"
+                    },
+                    "right":{
+                        "tableAlias":"Tracks",
+                        "columnId":"artist_id"
+                    },
+                    "joinType":"inner"
+                }
+            ]
+        },
+        {
+            "alias":"Artists and Albums",
+            "tables":[
+                {
+                    "id":"artists",
+                    "alias":"Artists"
+                },
+                {
+                    "id":"albums",
+                    "alias":"Albums"
+                }
+            ],
+            "joins":[
+                {
+                    "left":{
+                        "tableAlias":"Artists",
+                        "columnId":"id"
+                    },
+                    "right":{
+                        "tableAlias":"Albums",
+                        "columnId":"artist_id"
+                    },
+                    "joinType":"inner"
+                }
+            ]
+        }
+    ]
+}
