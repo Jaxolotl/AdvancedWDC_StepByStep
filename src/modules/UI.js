@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import TableauShim from './TableauShim';
 import TERMS from './termsDictionary';
+import { DEFAULT_TIME_RANGE } from './Requestor';
 
 /**
  * 
@@ -32,7 +33,7 @@ class UI {
     /**
      * 
      */
-    static get filteValue () {
+    static get filterValue () {
         return $('input[name="term"]:checked').val();
     }
 
@@ -42,7 +43,7 @@ class UI {
      * 
      * @param {String} value short_term|medium_term|long_term
      */
-    static set filteValue (value) {
+    static set filterValue (value) {
         $(`input[name="term"][value=${value}]`).click();
     }
 
@@ -53,8 +54,6 @@ class UI {
      * @returns {Undefined}
      */
     static submitConfiguration () {
-
-        let filterBy = this.filteValue;
 
         /**
          * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableau.authtype
@@ -71,7 +70,9 @@ class UI {
          * @see http://tableau.github.io/webdataconnector/docs/wdc_phases#pass-data-between-phases
          */
         TableauShim.connectionData = {
-            filterBy
+            filters: {
+                timeRange: this.filterValue
+            }
         };
 
         /**
@@ -87,10 +88,11 @@ class UI {
      * @returns {Undefined}
      */
     static setFilterFromConnectionData () {
-        let { filterBy } = TableauShim.connectionData;
 
-        if (filterBy) {
-            this.filteValue = filterBy;
+        let { filters: { timeRange = DEFAULT_TIME_RANGE } = {} } = TableauShim.connectionData;
+
+        if (timeRange) {
+            this.filterValue = timeRange;
         }
     }
 

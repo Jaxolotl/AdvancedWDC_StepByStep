@@ -23,7 +23,7 @@ function getHashParams () {
 /**
  * Helper object which abstracts away most of the authentication related connector functionality
  */
-class SpotifyAuthentication {
+class Authentication {
 
     /**
      * Gets the access_token and refresh_token from either tableau.password or query hash
@@ -64,14 +64,14 @@ class SpotifyAuthentication {
 
     /**
      * @param {Object} $0
-     * @param {String} $.access_token
-     * @param {String} $.refresh_token
+     * @param {String} $0.access_token
+     * @param {String} $0.refresh_token
      * 
      * @returns {Undefined}
      */
-    saveTokensToPassword ({ access_token, refresh_token } = {}) {
+    saveTokensToPassword ({ access_token, refresh_token } = {}) { // eslint-disable-line camelcase
 
-        if (!access_token || !refresh_token) {
+        if (!access_token || !refresh_token) { // eslint-disable-line camelcase
             throw new Error(TERMS.ERROR.SAVE_TOKENS_TO_PASSWD);
         }
 
@@ -123,4 +123,4 @@ class SpotifyAuthentication {
     }
 }
 
-export default SpotifyAuthentication;
+export default Authentication;

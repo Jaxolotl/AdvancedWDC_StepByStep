@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import Connector from './Connector';
 import TableauShim from './TableauShim';
-import SpotifyAuthentication from './SpotifyAuthentication';
+import Authentication from './Authentication';
 import UI from './UI';
 import TERMS from './termsDictionary';
+import Requestor from './Requestor';
 
 /**
  *
@@ -18,8 +19,8 @@ class SpotifyConnector extends Connector {
     init (initCallback) {
         TableauShim.log(`Connector.Init -> ${TableauShim.phase}`);
 
-        let spotifyAuthentication = new SpotifyAuthentication();
-        let tokens = spotifyAuthentication.getTokens();
+        let authentication = new Authentication();
+        let tokens = authentication.getTokens();
 
         if (tokens) {
             /**
@@ -36,8 +37,8 @@ class SpotifyConnector extends Connector {
              *      @see https://onlinehelp.tableau.com/current/online/en-us/to_fresh_data_saved_credentials.htm
              *      @see https://onlinehelp.tableau.com/current/pro/desktop/en-us/help.html#publishing_sharing_authentication.html
              */
-            spotifyAuthentication.saveUsername(`${TERMS.CONNECTOR_NAME}: ${(new Date()).toLocaleString()}`);
-            spotifyAuthentication.saveTokensToPassword(tokens);
+            authentication.saveUsername(`${TERMS.CONNECTOR_NAME}: ${(new Date()).toLocaleString()}`);
+            authentication.saveTokensToPassword(tokens);
 
             switch (TableauShim.phase) {
 
@@ -176,40 +177,50 @@ class SpotifyConnector extends Connector {
             return;
         }
 
+
         /**
          * Pass along the params required by the SchemaCallback signature
          * 
-         * @argument {Array} Array<TableInfo> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
-         * @argument {Array} Array<StandardConnection> @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
+         * @argument {Array} Array<TableInfo>
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1
+         * 
+         * @argument {Array} Array<StandardConnection>
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.standardconnection
          * 
          */
-        done([], []);
+        done({ tables, standardConnections });
 
     }
 
     /**
      * 
-     * The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
-     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
-     * @param {string} tableId
+     * @param {Object} $0 Object for destructuring
      * 
-     * Accept 1 parameter which will be passed to table.appendRows()
+     * tableId:
+     *      The id value of the current requested Table ( Table.tableInfo.id ) since this will cover most of the common usage cases
+     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.tableinfo-1.id-1
+     * @param {string} $0.tableId
+     * 
+     * done:
+     *      Accept 1 parameter which will be passed to table.appendRows()
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
      * and finally will call DataDoneCallback
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
-     * @param {function} done
+     * @param {function} $0.done
      * 
-     * Reference to Table:appendRows
+     * dataProgressCallback:
+     *      Wrapper of Table:appendRows
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-     * @param {function} dataProgressCallback
+     * @param {function} $0.dataProgressCallback
      * 
-     * Reference to Table
+     * tableProperties:
+     *      Serializable data of Table object
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table
-     * @param {function} tableInfoObject
+     * @param {function} $0.tableProperties
      * 
      * @returns {undefined}
      */
-    data (tableId, done, dataProgressCallback, tableInfoObject) { // eslint-disable-line no-unused-vars
+    data ({ tableId, done, dataProgressCallback, tableProperties } = {}) { // eslint-disable-line no-unused-vars
 
         // send the rows to Tableau ( Array<Array<any>> )
         // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
