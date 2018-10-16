@@ -286,15 +286,18 @@ class SpotifyConnector extends Connector {
 
         let dataView = this.getDataViewInstance({ tableId, tableProperties });
 
-        return dataView.getFlattenedData({ filterValues }).then((data) => {
+        /**
+         * We send the filter values to the "requesting data" mechanism to be consumed where needed
+         * @argument {Array} filterValues
+         * 
+         * We pass the dataProgressCallback as argument so that the "requesting data" mechanism can consume it
+         * @argument {Function} dataProgressCallback
+         * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
+         */
+        return dataView.getFlattenedData({ filterValues, dataProgressCallback }).then(() => {
 
             /**
-             * send the rows to Tableau ( Array<Array<any>> )
-             * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-             */
-            dataProgressCallback(data);
-            /**
-             * In this case we're done so we don't need to send more data to Tableau for this Table
+             * We're done so we don't need to send more data to Tableau for this Table
              * Let tableau know we're done
              * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
              */
