@@ -1,6 +1,10 @@
 
 import ADVANCED_SCHEMA from '../schemas/advancedSchemas';
+import ErrorHelper from './ErrorHelper';
 import SpotifyWebApi from 'spotify-web-api-node';
+import Q from 'q';
+import _ from 'lodash';
+import TERMS from './termsDictionary';
 
 export const DEFAULT_TIME_RANGE = 'short_term';
 export const DEFAULT_OFFSET = 0;
@@ -32,17 +36,77 @@ class Requestor {
     /**
      * 
      * @param {Object} $0
-     * @param {String} $0.timeRange long_term|medium_term|short_term 
-     * @param {Number} $0.offset
-     * @param {Number} $0.limit
-     * 
-     * @see https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/#query-parameters
-     * 
-     * @returns {Object} Promise/A+
+     * @param {String} $0.name
+     * @param {String} $0.message
+     * @param {Number} $0.statusCode
+     * @returns {Object}
      */
-    getTopArtists ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+    statusCodeInterceptor ({ name, message, statusCode } = {}) {
 
-        return this.apiLib.getMyTopArtists({ time_range: timeRange, limit, offset });
+        let handledErrors = {
+            '400': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['400']
+            },
+            '401': {
+                /**
+                 * we could implement a REAUTH action with this error
+                 */
+                action: 'REAUTH',
+                customMessage: TERMS.STATUS_CODES['401']
+            },
+            '403': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['403']
+            },
+            '404': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['404']
+            },
+            '429': {
+                /**
+                 * we could implement a RETRY action with this error
+                 * @see https://developer.spotify.com/documentation/web-api/#rate-limiting
+                 */
+                action: 'RETRY',
+                customMessage: TERMS.STATUS_CODES['429']
+            },
+            '500': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['500']
+            },
+            '502': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['502']
+            },
+            '503': {
+                action: null,
+                customMessage: TERMS.STATUS_CODES['503']
+            }
+        };
+
+        let defaultError = {
+            customMessage: `${name}: ${message} (${statusCode})`,
+            action: null
+        };
+
+        return _.get(handledErrors, statusCode, defaultError);
+    }
+
+    /**
+     * 
+     * @param {Object} reason
+     * @returns {Object} Promise/A+ a Rejected Promise
+     */
+    responseErrorCapturing (reason = {}) {
+
+        let capturedError = this.statusCodeInterceptor(reason);
+
+        if (capturedError.action) {
+            ErrorHelper.createError('Requestor.responseErrorCapturing ->', `We could take an action for this error ${reason.statusCode}`).log();
+        }
+
+        return Q.reject(capturedError);
 
     }
 
@@ -57,9 +121,26 @@ class Requestor {
      * 
      * @returns {Object} Promise/A+
      */
-    getTopTracks ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+    getTopArtists ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) {
 
-        return this.apiLib.getMyTopTracks({ time_range: timeRange, limit, offset });
+        return this.apiLib.getMyTopArtists({ time_range: timeRange, limit, offset }).catch(this.responseErrorCapturing.bind(this));
+
+    }
+
+    /**
+     * 
+     * @param {Object} $0
+     * @param {String} $0.timeRange long_term|medium_term|short_term 
+     * @param {Number} $0.offset
+     * @param {Number} $0.limit
+     * 
+     * @see https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/#query-parameters
+     * 
+     * @returns {Object} Promise/A+
+     */
+    getTopTracks ({ timeRange = DEFAULT_TIME_RANGE, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) {
+
+        return this.apiLib.getMyTopTracks({ time_range: timeRange, limit, offset }).catch(this.responseErrorCapturing.bind(this));
 
     }
 
@@ -74,9 +155,9 @@ class Requestor {
      * 
      * @returns {Object} Promise/A+
      */
-    getAlbums ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+    getAlbums ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) {
 
-        return this.apiLib.getMySavedAlbums({ market, limit, offset });
+        return this.apiLib.getMySavedAlbums({ market, limit, offset }).catch(this.responseErrorCapturing.bind(this));
 
     }
 
@@ -91,9 +172,9 @@ class Requestor {
      * 
      * @returns {Object} Promise/A+
      */
-    getTracks ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) { // eslint-disable-line no-unused-vars
+    getTracks ({ market, offset = DEFAULT_OFFSET, limit = DEFAULT_LIMIT } = {}) {
 
-        return this.apiLib.getMySavedTracks({ market, limit, offset });
+        return this.apiLib.getMySavedTracks({ market, limit, offset }).catch(this.responseErrorCapturing.bind(this));
 
     }
 
@@ -111,7 +192,7 @@ class Requestor {
      */
     getTracksFeatures ({ ids = [] } = {}) {
 
-        return this.apiLib.getAudioFeaturesForTracks(ids);
+        return this.apiLib.getAudioFeaturesForTracks(ids).catch(this.responseErrorCapturing.bind(this));
 
     }
 
@@ -129,7 +210,7 @@ class Requestor {
      */
     getArtists ({ ids = [] } = {}) {
 
-        return this.apiLib.getArtists(ids);
+        return this.apiLib.getArtists(ids).catch(this.responseErrorCapturing.bind(this));
 
     }
 
