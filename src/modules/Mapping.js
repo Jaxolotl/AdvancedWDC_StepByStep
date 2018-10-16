@@ -1,7 +1,3 @@
-/**
- * @see /docs/doc/Data-Mapping-v2.md
- */
-
 import _ from 'lodash';
 import ErrorHelper from './ErrorHelper';
 import { ENUMS_DICTIONARY } from '@jaxolotl/wdclib';
@@ -102,7 +98,7 @@ class Mapping {
      * @param {String} id
      * @returns {Boolean}
      */
-    isValidId (id) {
+    isValidId (id = '') {
         return id.match(/^[a-z][a-z0-9_]+$/ig);
     }
 
@@ -113,10 +109,6 @@ class Mapping {
     prevalidateRule (rule) {
         if (!_.isPlainObject(rule)) {
             return ErrorHelper.createError('Mapping', `Mapping rules MUST be literal objects ${stringifiedRule(rule)}`);
-        }
-
-        if (_.isUndefined(rule.id)) {
-            rule.id = this.generateid(rule);
         }
 
         if (!this.isValidId(rule.id)) {
