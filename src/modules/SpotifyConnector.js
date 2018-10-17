@@ -233,9 +233,7 @@ class SpotifyConnector extends Connector {
      * @param {string} $0.tableId
      * 
      * done:
-     *      Accept 1 parameter which will be passed to table.appendRows()
-     * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.table.appendrows
-     * and finally will call DataDoneCallback
+     *      Wrapper of DataDoneCallback
      * @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.datadonecallback
      * @param {function} $0.done
      * 
