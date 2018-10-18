@@ -2,7 +2,7 @@
   "author": "Javier Valderrama",
   "name": "advanced_wdc_step_by_step",
   "description": "Spotify Web Data Connector for Tableau",
-  "version": "1.6.1",
+  "version": "1.7.2",
   "dependencies": {
     "jquery": "~3.1.0",
     "q": "~1.5.1"
