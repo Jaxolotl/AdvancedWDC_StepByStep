@@ -24,14 +24,6 @@ To use, do the following:
 ## Suggested GIT client for intermediate users
 [Atlassian SourceTree](https://www.sourcetreeapp.com/) 
 
-## Original Tableau WDC development tools and documentation
-Part of this references are included on the repository source code son you can make a code/documentation relationship. In order to run this WDC on the simulator you'll need to follow the SDK and simulator instructions. Once you get confident with the connector's code and documentation, I'd strongly suggest you to dive into the API documentation to acquire a deeper knowledge.
-Here some usefull links to get started :P
-- [Get Started](http://tableau.github.io/webdataconnector/docs/)
-- [SDK / simulator](http://tableau.github.io/webdataconnector/docs/#get-the-wdc-sdk)
-- [Run the simulator](http://tableau.github.io/webdataconnector/docs/#run-the-simulator)
-- [API reference](http://tableau.github.io/webdataconnector/docs/api_ref)
-
 ## Using Get-Content and Select-String powershell cmdlet to read logs on WIndows
 Tableau WDC API for logging will output `TableauShim.log('log content')` as follow:
 
@@ -69,3 +61,49 @@ For more details
 
 - [Get-Content Cmdlet](https://technet.microsoft.com/en-us/library/hh849787.aspx)
 - [Select-String Cmdlet](https://technet.microsoft.com/en-us/library/ee176956.aspx)
+
+## What if I use this code to build my own connector?
+That's the point of all of this!!! Please do it! Any feedback will be welcome.  
+
+Just take this in consideration:  
+
+### CORS
+Despite the Tableau Desktop embedded browser implementation, all browsers will apply a security policy regarding [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) and [Same-origin policy](https://en.wikipedia.org/wiki/Same-origin_policy), therefore, depending on the API you're consuming, you'll have to workaround that, a developer should be able to test a connector on the Simulator
+without the interference of a browser level security blocking access to an API that doesn't support CORS.  
+In order to achieve that, here you have a hack to disable the Same-Origin security restriction on Chrome.
+
+### Example for Windows
+1. Create a directory where Chrome will save all the session information
+1. Create a shortcut with the following target "`[PATH TO CHROME APP]\chrome.exe" --user-data-dir=[PATH TO THE DIRECTORY CREATED ON STEP 1] --disable-web-security`
+1. Upon execution Chrome will prompt an alert message, just ignore it.
+
+```
+
+    /** 
+     * Create a directory on the C drive.
+     * e.g. c:\my-session-staff
+     * 
+     * Then create a shortcut with the following target
+     */
+
+    "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --user-data-dir=c:\my-session-staff --disable-web-security
+
+```
+
+### Example for Mac
+On the terminal type the following:
+
+```
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --user-data-dir="/tmp/chrome_dev_session" --disable-web-security
+```
+
+Replace with your particular path to chrome if necessary.
+
+
+## Official Tableau WDC development tools and documentation
+Part of this references are included on the repository source code so you can make a code/documentation relationship. In order to run this WDC on the simulator you'll need to follow the SDK and simulator instructions. Once you get confident with the connector's code and documentation, I'd strongly suggest you to dive into the API documentation to acquire a deeper knowledge.
+Here some usefull links to get started :P
+- [Get Started](http://tableau.github.io/webdataconnector/docs/)
+- [SDK / simulator](http://tableau.github.io/webdataconnector/docs/#get-the-wdc-sdk)
+- [Run the simulator](http://tableau.github.io/webdataconnector/docs/#run-the-simulator)
+- [API reference](http://tableau.github.io/webdataconnector/docs/api_ref)
