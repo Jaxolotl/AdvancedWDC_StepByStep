@@ -206,5 +206,5 @@ app.get('/refresh_token', function (req, res) {
 });
 
 app.listen(app.get('port'), () => {
-    LOG(`Listening on ${app.get('port')}`);
+    LOG(`Listening on ${CONFIG.HOST_NAME}:${app.get('port')}`);
 });

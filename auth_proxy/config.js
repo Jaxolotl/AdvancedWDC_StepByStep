@@ -6,19 +6,18 @@
  */
 // this will attempt to load /.env to emulate process.env stored vars and avoid hardcode them
 import dotenv from 'dotenv';
-
-import { hostname } from 'os';
 import { env } from 'process';
-
-const PORT = 3000;
-const HOST_NAME = hostname();
-const REDIRECT_URI = 'http://' + HOST_NAME + ':' + PORT + '/callback';
-const API_URI = 'https://accounts.spotify.com';
 
 dotenv.config();
 
+const PORT = env.PORT || 3000;
+const HOST_NAME = env.HOST_NAME || 'localhost';
+const REDIRECT_URI = 'http://' + HOST_NAME + ':' + PORT + '/callback';
+const API_URI = 'https://accounts.spotify.com';
+
 export default {
-    'PORT': PORT,
+    PORT,
+    HOST_NAME,
     // @see http://tableau.github.io/webdataconnector/docs/api_ref.html#webdataconnectorapi.authpurposeenum
     // DESKTOP SECRETS
     'EPHEMERAL': {
